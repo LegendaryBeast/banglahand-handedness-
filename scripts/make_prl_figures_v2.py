@@ -236,7 +236,11 @@ def tables(run, out):
                     f"{fmt(r.para_ba_writer_split)} & {fmt(r.para_ba_leaky)} & {fmt(r.writer_id_top1)} & "
                     f"{sgn(100 * c.transfer_C_minus_D.mean())} / {sgn(100 * c.varied_B_minus_E.mean())} \\\\")
         if rep == "stroke_cnn" and gs is not None:
-            rows.append(f"{gname} & {fmt(gs.loc['svm_A', 'ba_mean'])} & -- & {fmt(gs.loc['svm_adj_A', 'ba_mean'])} & -- & -- & -- & -- & -- & -- \\\\")
+            gp = pd.read_csv(run / "finetune_grey_pitfalls.csv").iloc[0] if (run / "finetune_grey_pitfalls.csv").is_file() else None
+            pv = lambda k: fmt(gp[k]) if gp is not None else "--"
+            con_g = (f"{sgn(100 * gp.transfer_C_minus_D)} / {sgn(100 * gp.varied_B_minus_E)}" if gp is not None else "--")
+            rows.append(f"{gname} & {fmt(gs.loc['svm_A', 'ba_mean'])} & -- & {fmt(gs.loc['svm_adj_A', 'ba_mean'])} & {pv('time_adj')} & "
+                        f"{pv('acq_time')} & {pv('para_ba_writer_split')} & -- & {pv('writer_id_top1')} & {con_g} \\\\")
     (out / "table_pitfalls.tex").write_text("\n".join(rows) + "\n")
     rows = []
     for rep in ["hc183", "style6", "stroke", "combined"]:
