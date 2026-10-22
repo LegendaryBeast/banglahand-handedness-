@@ -16,7 +16,9 @@ For every fold three writer-level predictions are made for the held-out writers:
            inside the training fold (the adjustment used for every other representation)
 
 Writes to --run: finetune_grey_writer_predictions.csv, finetune_grey_metrics_by_split.csv,
-finetune_grey_provenance.json; grey tiles are cached in --run/features/grey_tiles.npz.
+finetune_grey_provenance.json and finetune_grey_embeddings.npz (the 512-d fine-tuned embedding of every image, averaged
+over its tiles, for every seed and fold; used by summarise_finetuned_grey_cnn.py for the other classifiers and text
+conditions); grey tiles are cached in --run/features/grey_tiles.npz.
 Covariates come from --run/features/features.npz and descriptors.csv (the saved features of the reported run).
 """
 import argparse
@@ -134,7 +136,7 @@ def main():
     n_img = len(meta)
     amp = device.type == "cuda"                          # mixed precision on the GPU (T4) for speed
     torch.backends.cudnn.benchmark = amp
-    rows, t0 = [], time.time()
+    rows, embs, t0 = [], [], time.time()
     for seed in SEEDS:
         fold = dict(zip(writers, rf.writer_folds(writers, wl, seed)))
         fw_img = np.array([fold[u] for u in w_img])
@@ -166,6 +168,7 @@ def main():
             # per-image means
             cnt = np.bincount(idx, minlength=n_img)
             e_im = np.zeros((n_img, emb.shape[1])); np.add.at(e_im, idx, emb); e_im /= cnt[:, None]
+            embs.append(e_im.astype(np.float32))
             # SVM on the fine-tuned embedding, unadjusted and adjusted (training writers' shared paragraphs)
             te_img = np.flatnonzero((fw_img == f) & (p_img <= 6))
             svm_scores = {}
@@ -182,6 +185,8 @@ def main():
                                  svm=float(np.mean([svm_scores["svm"][i] for i in a_im])),
                                  svm_adj=float(np.mean([svm_scores["svm_adj"][i] for i in a_im]))))
             print(f"seed {seed} fold {f} done {time.time() - t0:.0f}s", flush=True)
+    np.savez_compressed(run / "finetune_grey_embeddings.npz", emb=np.stack(embs).reshape(len(SEEDS), 5, n_img, -1),
+                        seeds=np.array(SEEDS), image_id=meta.image_id.to_numpy())
     df = pd.DataFrame(rows); df.to_csv(run / "finetune_grey_writer_predictions.csv", index=False)
     out = []
     for seed, g in df.groupby("seed"):

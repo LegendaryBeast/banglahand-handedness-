@@ -3,7 +3,7 @@
 Code and saved results for the study of writer-independent handedness identification on **BanglaHand**, a balanced dataset of handwritten Bangla paragraphs from 42 writers (21 left-handed, 21 right-handed).
 
 - **Dataset:** BanglaHand, Mendeley Data, V1, doi:[10.17632/n4sjstdzfy.1](https://doi.org/10.17632/n4sjstdzfy.1) (CC BY 4.0). It is described in the data article *BanglaHand: A Dataset of Handwritten Paragraphs for Writer-Independent Handedness Recognition* (Data in Brief, submitted).
-- **Research article:** *Handedness identification from Bangla handwriting: A writer-independent evaluation across text conditions* (Pattern Recognition Letters, submitted).
+- **Research article:** *Writer-independent handedness identification from offline Bangla handwriting under controlled acquisition* (Pattern Recognition Letters, submitted).
 
 The images are **not** stored in this repository. Download them from Mendeley Data, unzip, and rename the folder to `dataset/` in the repository root.
 

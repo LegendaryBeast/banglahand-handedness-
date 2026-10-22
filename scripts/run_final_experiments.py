@@ -131,8 +131,8 @@ class Data:
         self.writers, self.wlabels = wt.index.to_numpy(), wt.to_numpy()
 
 
-def run_cv(D, rep, clf, seed, analyses=tuple(TESTS), writers=None, image_ok=None, labels=None, train_frac=1.0):
-    """One repetition of 5-fold writer CV; returns paragraph predictions."""
+def run_cv(D, rep, clf, seed, analyses=tuple(TESTS), writers=None, image_ok=None, labels=None, train_frac=1.0, only_fold=None):
+    """One repetition of 5-fold writer CV; returns paragraph predictions (only_fold: run that outer fold only)."""
     X = D.X[rep]
     wr = D.writers if writers is None else np.array(sorted(writers))
     wl = (pd.Series(D.wlabels, D.writers) if labels is None else labels).loc[wr].to_numpy()
@@ -141,7 +141,7 @@ def run_cv(D, rep, clf, seed, analyses=tuple(TESTS), writers=None, image_ok=None
     fold_of = dict(zip(wr, writer_folds(wr, wl, seed)))
     fits_needed = sorted({TESTS[a][0] for a in analyses})
     rows = []
-    for f in range(5):
+    for f in range(5) if only_fold is None else [only_fold]:
         test_w = {u for u, k in fold_of.items() if k == f}
         train_w = np.array([u for u in wr if u not in test_w])
         if train_frac < 1.0:

@@ -24,3 +24,5 @@ __pycache__/
 *.blg
 # Journal submission proofs and other local PDFs at the root
 /*.pdf
+# 59 MB fine-tuned features (scripts/run_finetuned_grey_cnn.py output); regenerate with step 7c of REPRODUCIBILITY.md
+results/*/finetune_grey_embeddings.npz

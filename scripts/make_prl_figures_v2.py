@@ -210,7 +210,9 @@ def tables(run, out):
                     f"{fmt(g('C'), g('C', col='ba_sd'))} & {fmt(g('B'), g('B', col='ba_sd'))} & {fmt(g('ALL8'), g('ALL8', col='ba_sd'))} & {g('A', col='auc_mean'):.2f} \\\\")
         if rep == "stroke_cnn" and gs is not None:
             s = gs.loc["svm_A"]
-            rows.append(f"{gname} & {fmt(s.ba_mean, s.ba_sd)} & {100 * s.ci_low:.0f}--{100 * s.ci_high:.0f} & -- & -- & -- & -- & -- & {s.auc_mean:.2f} \\\\")
+            gv = lambda r, sd=True: fmt(gs.loc[r, "ba_mean"], gs.loc[r, "ba_sd"] if sd else None) if r in gs.index else "--"
+            rows.append(f"{gname} & {gv('svm_A')} & {100 * s.ci_low:.0f}--{100 * s.ci_high:.0f} & {gv('logistic_A', False)} & "
+                        f"{gv('random_forest_A', False)} & {gv('svm_C')} & {gv('svm_B')} & {gv('svm_ALL8')} & {s.auc_mean:.2f} \\\\")
         if rep in ("combined", "stroke_cnn"):
             rows.append("\\addlinespace[2pt]")
     (out / "table_main.tex").write_text("\n".join(rows) + "\n")

@@ -44,8 +44,12 @@ hits = glob.glob(f"{KAGGLE}/input/**/dataset/metadata/images.csv", recursive=Tru
 assert hits, "Attach the uploaded dataset to this notebook (Add data -> Your datasets)."
 INPUT = Path(hits[0]).parents[2]
 PROJECT = Path(f"{KAGGLE}/working/project"); PROJECT.mkdir(parents=True, exist_ok=True)
-if not (PROJECT / "scripts").exists():
-    shutil.copytree(INPUT / "code", PROJECT / "scripts")
+shutil.rmtree(PROJECT / "scripts", ignore_errors=True)        # always use the code of the attached dataset version
+shutil.copytree(INPUT / "code", PROJECT / "scripts")
+assert "finetune_grey_embeddings" in (PROJECT / "scripts/run_finetuned_grey_cnn.py").read_text(), \
+    "Old dataset version attached: upload the new banglahand-grey-cnn.zip as a new dataset version."
+for f in ["finetune_grey_metrics_by_split.csv", "finetune_grey_writer_predictions.csv", "finetune_grey_embeddings.npz"]:
+    (PROJECT / "results/final42_grey" / f).unlink(missing_ok=True)   # no stale outputs from an earlier run
 if not (PROJECT / "dataset").exists():
     os.symlink(INPUT / "dataset", PROJECT / "dataset")
 RUN = PROJECT / "results" / "final42_grey"
@@ -69,7 +73,8 @@ print(f"finished in {(time.time() - t) / 60:.0f} min")'''),
     code(r'''import pandas as pd
 m = pd.read_csv(RUN / "finetune_grey_metrics_by_split.csv")
 display((100 * m.drop(columns="seed").agg(["mean", "std"])).round(1))'''),
-    code(r'''keep = ["finetune_grey_writer_predictions.csv", "finetune_grey_metrics_by_split.csv", "finetune_grey_provenance.json", "log_grey_cnn.txt"]
+    code(r'''keep = ["finetune_grey_writer_predictions.csv", "finetune_grey_metrics_by_split.csv", "finetune_grey_provenance.json",
+        "finetune_grey_embeddings.npz", "log_grey_cnn.txt"]
 with __import__("zipfile").ZipFile(f"{KAGGLE}/working/grey_cnn_results.zip", "w") as z:
     for f in keep:
         z.write(RUN / f, f)
