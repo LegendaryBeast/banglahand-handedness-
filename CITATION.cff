@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the dataset and the articles below."
+title: "BanglaHand: code for writer-independent handedness identification from Bangla handwriting"
+type: software
+license: MIT
+repository-code: "https://github.com/GITHUB_USER/banglahand-handedness"
+authors:
+  - family-names: Prappo
+    given-names: Tanzim Hasan
+    email: tanzimh46@gmail.com
+  - family-names: Hassan
+    given-names: Sayeed
+  - family-names: Ali
+    given-names: Sayem
+  - family-names: Dhar
+    given-names: Sukhendra Nath
+  - family-names: Rahman
+    given-names: M. Shahidur
+references:
+  - type: dataset
+    title: "BanglaHand"
+    authors:
+      - family-names: Prappo
+        given-names: Tanzim Hasan
+      - family-names: Hassan
+        given-names: Sayeed
+      - family-names: Ali
+        given-names: Sayem
+      - family-names: Dhar
+        given-names: Sukhendra Nath
+      - family-names: Rahman
+        given-names: M. Shahidur
+    publisher:
+      name: Mendeley Data
+    version: "1"
+    year: 2026
+    doi: 10.17632/n4sjstdzfy.1

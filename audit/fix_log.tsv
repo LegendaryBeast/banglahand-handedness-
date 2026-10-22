@@ -1,0 +1,5 @@
+action	from	to
+rename	dataset/Right-Handed/P10/paragraph_05.jpg	dataset/Right-Handed/P10/paragraph_03.jpg
+rename	dataset/Right-Handed/P10/paragraph_06.jpg	dataset/Right-Handed/P10/paragraph_04.jpg
+rename	dataset/Right-Handed/P10/paragraph_03.jpg	dataset/Right-Handed/P10/paragraph_05.jpg
+rename	dataset/Right-Handed/P10/paragraph_04.jpg	dataset/Right-Handed/P10/paragraph_06.jpg

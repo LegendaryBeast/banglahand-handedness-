@@ -1,0 +1,18 @@
+{
+  "seeds": [
+    2026,
+    2027,
+    2028,
+    2029,
+    2030
+  ],
+  "epochs": 4,
+  "lr": 0.0003,
+  "weight_decay": 0.0001,
+  "batch": 64,
+  "mirror_augment": true,
+  "n_tiles": 4690,
+  "device": "mps",
+  "torch": "2.14.0",
+  "runtime_s": 3246
+}

@@ -1,0 +1,178 @@
+{
+  "images": 336,
+  "writers": 42,
+  "per_hand": {
+    "left": 21,
+    "right": 21
+  },
+  "files_on_disk": 336,
+  "disk_equals_metadata": true,
+  "exists": 336,
+  "sha_meta": 336,
+  "sha_sums": 336,
+  "size_ok": 336,
+  "exif_orientation_tags": 0,
+  "unique_sha": 336,
+  "same_prompt_different_writers_pairs": 6888,
+  "same_prompt_different_writers_max_inliers": 102,
+  "same_writer_pairs": 1176,
+  "same_writer_max_inliers": 378,
+  "unreleased_vs_released_pairs": 336,
+  "unreleased_vs_released_max_inliers": 1659,
+  "unreleased_P19_vs_R_p6_inliers": [
+    1391,
+    1659
+  ],
+  "top_pairs": [
+    {
+      "a": "unreleased/P19_para07",
+      "b": "released/R_p6_para07",
+      "kind": "unreleased_vs_released",
+      "inliers": 1659
+    },
+    {
+      "a": "unreleased/P19_para05",
+      "b": "released/R_p6_para05",
+      "kind": "unreleased_vs_released",
+      "inliers": 1619
+    },
+    {
+      "a": "unreleased/P19_para04",
+      "b": "released/R_p6_para04",
+      "kind": "unreleased_vs_released",
+      "inliers": 1574
+    },
+    {
+      "a": "unreleased/P19_para08",
+      "b": "released/R_p6_para08",
+      "kind": "unreleased_vs_released",
+      "inliers": 1553
+    },
+    {
+      "a": "unreleased/P19_para01",
+      "b": "released/R_p6_para01",
+      "kind": "unreleased_vs_released",
+      "inliers": 1478
+    },
+    {
+      "a": "unreleased/P19_para02",
+      "b": "released/R_p6_para02",
+      "kind": "unreleased_vs_released",
+      "inliers": 1441
+    },
+    {
+      "a": "unreleased/P19_para03",
+      "b": "released/R_p6_para03",
+      "kind": "unreleased_vs_released",
+      "inliers": 1426
+    },
+    {
+      "a": "unreleased/P19_para06",
+      "b": "released/R_p6_para06",
+      "kind": "unreleased_vs_released",
+      "inliers": 1391
+    },
+    {
+      "a": "released/L_p14_para07",
+      "b": "released/L_p14_para08",
+      "kind": "same_writer",
+      "inliers": 378
+    },
+    {
+      "a": "released/L_p21_para07",
+      "b": "released/L_p21_para08",
+      "kind": "same_writer",
+      "inliers": 188
+    },
+    {
+      "a": "released/L_p8_para07",
+      "b": "released/L_p11_para07",
+      "kind": "same_prompt_different_writers",
+      "inliers": 102
+    },
+    {
+      "a": "released/L_p8_para07",
+      "b": "released/R_p8_para07",
+      "kind": "same_prompt_different_writers",
+      "inliers": 74
+    },
+    {
+      "a": "released/L_p3_para08",
+      "b": "released/R_p12_para08",
+      "kind": "same_prompt_different_writers",
+      "inliers": 73
+    },
+    {
+      "a": "released/R_p9_para07",
+      "b": "released/R_p16_para07",
+      "kind": "same_prompt_different_writers",
+      "inliers": 70
+    },
+    {
+      "a": "released/L_p8_para06",
+      "b": "released/R_p12_para06",
+      "kind": "same_prompt_different_writers",
+      "inliers": 65
+    },
+    {
+      "a": "released/L_p8_para07",
+      "b": "released/L_p10_para07",
+      "kind": "same_prompt_different_writers",
+      "inliers": 61
+    },
+    {
+      "a": "released/L_p3_para08",
+      "b": "released/R_p8_para08",
+      "kind": "same_prompt_different_writers",
+      "inliers": 61
+    },
+    {
+      "a": "released/R_p3_para07",
+      "b": "released/R_p8_para07",
+      "kind": "same_prompt_different_writers",
+      "inliers": 54
+    },
+    {
+      "a": "released/L_p8_para08",
+      "b": "released/R_p1_para08",
+      "kind": "same_prompt_different_writers",
+      "inliers": 54
+    },
+    {
+      "a": "released/L_p8_para07",
+      "b": "released/R_p16_para07",
+      "kind": "same_prompt_different_writers",
+      "inliers": 52
+    },
+    {
+      "a": "released/L_p16_para06",
+      "b": "released/R_p2_para06",
+      "kind": "same_prompt_different_writers",
+      "inliers": 51
+    },
+    {
+      "a": "released/L_p15_para06",
+      "b": "released/R_p2_para06",
+      "kind": "same_prompt_different_writers",
+      "inliers": 46
+    },
+    {
+      "a": "released/L_p8_para08",
+      "b": "released/L_p11_para08",
+      "kind": "same_prompt_different_writers",
+      "inliers": 45
+    },
+    {
+      "a": "released/L_p8_para07",
+      "b": "released/R_p10_para07",
+      "kind": "same_prompt_different_writers",
+      "inliers": 44
+    },
+    {
+      "a": "released/L_p1_para04",
+      "b": "released/R_p9_para04",
+      "kind": "same_prompt_different_writers",
+      "inliers": 43
+    }
+  ]
+}

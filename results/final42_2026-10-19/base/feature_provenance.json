@@ -1,0 +1,22 @@
+{
+  "dims": {
+    "hc183": 183,
+    "resnet18": 512,
+    "efficientnet_b0": 1280,
+    "vit_b_16": 768,
+    "global_intensity": 7,
+    "background": 7
+  },
+  "device": "mps",
+  "python": "3.13.9",
+  "torch": "2.14.0",
+  "torchvision": "0.29.0",
+  "weights": {
+    "resnet18": "IMAGENET1K_V1",
+    "efficientnet_b0": "IMAGENET1K_V1",
+    "vit_b_16": "IMAGENET1K_V1"
+  },
+  "tile": 224,
+  "tile_width": 1568,
+  "tile_ink_threshold": 0.01
+}

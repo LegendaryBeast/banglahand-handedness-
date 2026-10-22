@@ -1,0 +1,26 @@
+# Data are distributed through Mendeley Data (doi:10.17632/n4sjstdzfy.1); camera originals are not released
+dataset/
+camera_originals/
+# Generated packages, manuscripts under review, internal notes
+release/
+manuscripts/
+results/*/protocol/
+results/*/logs/
+results/*/FINDINGS.md
+audit/review_sheets/
+# OS / Python / Jupyter / LaTeX
+.DS_Store
+._*
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.benchmarks/
+.ipynb_checkpoints/
+.venv/
+*.aux
+*.log
+*.out
+*.spl
+*.blg
+# Journal submission proofs and other local PDFs at the root
+/*.pdf
