@@ -264,7 +264,6 @@ CombEB,70.0
 CombDC,78.2
 CombEC,80.4
 SpStrokeHc,0.24
-SpStrokeFt,0.54
 AuditMaxDiff,102
 AuditDupLo,"1,391"
 AuditDupHi,"1,659"

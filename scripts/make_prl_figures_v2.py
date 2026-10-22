@@ -43,18 +43,15 @@ def fmt(v, sd=None):
 def fig_main(run, out):
     m = pd.read_csv(run / "metrics_by_split.csv")
     s = pd.read_csv(run / "secondary_metrics_by_split.csv")
-    ft = pd.read_csv(run / "finetune_metrics_by_split.csv")
     ctrl = s[(s.study == "control") & (s.clf == "svm")]
     fig, ax = plt.subplots(figsize=(7.16, 2.2), constrained_layout=True)
     order = ["A", "C", "B", "ALL8"]
     x, ticks = 0, []
     rng = np.random.default_rng(3)
-    groups = REPS + ["finetuned"] + CTRL
+    groups = REPS + CTRL
     for rep in groups:
         if rep in REPS:
             d = m[(m.rep == rep) & (m.clf == "svm")]; series = {a: d[d.analysis == a].ba.to_numpy() for a in order}
-        elif rep == "finetuned":
-            series = {"A": ft.ba_A.to_numpy(), "C": ft.ba_C.to_numpy()}
         else:
             series = {"A": ctrl[ctrl.rep == rep].ba.to_numpy()}
         start = x
@@ -62,8 +59,8 @@ def fig_main(run, out):
             ax.scatter(x + rng.uniform(-0.17, 0.17, len(v)), v, s=4, color=ACOL[a], alpha=0.45, lw=0)
             ax.errorbar(x, v.mean(), yerr=v.std(ddof=1), fmt="o", ms=3.4, color=ACOL[a], mec="white", mew=0.5, capsize=1.5, lw=0.9)
             x += 1
-        ticks.append(((start + x - 1) / 2, NAME[rep])); x += 0.7 if rep not in ("finetuned", "global_intensity") else 1.3
-        if rep in ("combined", "finetuned"):
+        ticks.append(((start + x - 1) / 2, NAME[rep])); x += 0.7 if rep not in ("stroke_cnn", "global_intensity") else 1.3
+        if rep in ("combined", "stroke_cnn"):
             ax.axvline(x - 0.85, color="#d1d5db", lw=0.6)
     ax.axhline(0.5, color="k", lw=0.6, ls=":")
     ax.set_xticks([t[0] for t in ticks]); ax.set_xticklabels([t[1] for t in ticks], fontsize=5.8)
@@ -81,8 +78,7 @@ def fig_mechanism(run, out):
     """(a) permutation nulls, (b) STROKE block ablation, (c) mirror test."""
     perm = pd.read_csv(run / "permutation_tests.csv").set_index("rep")
     s = pd.read_csv(run / "secondary_metrics_summary.csv")
-    ft = pd.read_csv(run / "finetune_metrics_by_split.csv")
-    fta = run / "finetune_mirroraug_metrics_by_split.csv"
+    ma = pd.read_csv(run / "mirror_augmented_stroke.csv")              # STROKE SVM trained on original + mirrored ink
     mt = pd.read_csv(run / "mirror_test_by_split.csv") if (run / "mirror_test_by_split.csv").is_file() else None
     fig, axes = plt.subplots(1, 3, figsize=(7.16, 1.95), constrained_layout=True, gridspec_kw=dict(width_ratios=[1.5, 1.0, 1.1]))
     ax = axes[0]
@@ -105,9 +101,7 @@ def fig_mechanism(run, out):
     ax.axvline(0.5, color="k", lw=0.6, ls=":"); ax.set_yticks(y); ax.set_yticklabels([l for _, l in blocks], fontsize=5.6)
     ax.invert_yaxis(); ax.set_xlim(0.3, 0.85); ax.set_xlabel("writer BA (SVM, A)"); ax.set_title("(b) STROKE blocks alone", fontsize=6.6)
     ax = axes[2]
-    bars = [("fine-tuned\noriginal", ft.ba_A), ("fine-tuned\nmirrored test", ft.ba_A_mirror)]
-    if fta.is_file():
-        fa = pd.read_csv(fta); bars += [("mirror-trained\noriginal", fa.ba_A), ("mirror-trained\nmirrored test", fa.ba_A_mirror)]
+    bars = [("STROKE mirror-\ntrained, original", ma.ba_original), ("STROKE mirror-\ntrained, mirrored", ma.ba_mirrored)]
     if mt is not None:
         bars = [("STROKE SVM\noriginal", mt.ba_original), ("STROKE SVM\nmirrored", mt.ba_mirrored)] + bars
     cols = ["#c2410c", "#fdba74"] * 4
@@ -142,9 +136,6 @@ def fig_writers(run, out):
     d = wr[(wr.clf == "svm") & (wr.analysis == "A")]
     rows = ["hc183", "style6", "stroke", "combined", "efficientnet_b0"]
     acc = d.assign(c=(d.pred == d.label)).groupby(["writer_id", "rep"]).c.mean().unstack()[rows]
-    ft = pd.read_csv(run / "finetune_writer_predictions.csv")
-    acc["finetuned"] = ft.assign(c=((ft.A >= 0.5).astype(int) == ft.label)).groupby("writer_id").c.mean()
-    rows = rows + ["finetuned"]
     acc["lab"] = d.groupby("writer_id").label.first(); acc["mean"] = acc[rows].mean(axis=1)
     acc = acc.sort_values(["lab", "mean"], ascending=[False, True])
     cmap = LinearSegmentedColormap.from_list("wr", ["#9f2a2a", "#e8908a", "#f0efec", "#86b6ef", "#184f95"])
@@ -207,14 +198,10 @@ def fig_differences(run, out):
 
 def tables(run, out):
     sm = pd.read_csv(run / "metrics_summary.csv"); cs = pd.read_csv(run / "controls_metrics_summary.csv")
-    ft = pd.read_csv(run / "finetune_metrics_by_split.csv")
     ci = pd.read_csv(run / "writer_bootstrap_ci.csv").set_index("rep")         # amendment 3
     cis = lambda r: f"{100 * ci.loc[r, 'ci_low']:.0f}--{100 * ci.loc[r, 'ci_high']:.0f}"
     rows = []
-    for rep in REPS + ["finetuned"] + CTRL:
-        if rep == "finetuned":
-            rows.append(f"Stroke-CNN, fine-tuned$^\\dagger$ & {fmt(ft.ba_A.mean(), ft.ba_A.std())} & {cis('finetuned')} & -- & -- & {fmt(ft.ba_C.mean(), ft.ba_C.std())} & n/a & n/a & -- \\\\")
-            continue
+    for rep in REPS + CTRL:
         src = sm if rep in REPS else cs
         g = lambda an, clf="svm", col="ba_mean": src[(src.rep == rep) & (src.clf == clf) & (src.analysis == an)][col].iloc[0]
         rows.append(f"{NAME[rep].replace(chr(10), ' ')} & {fmt(g('A'), g('A', col='ba_sd'))} & {cis(rep)} & {fmt(g('A', 'logistic'))} & {fmt(g('A', 'random_forest'))} & "

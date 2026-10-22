@@ -161,7 +161,7 @@ def main():
         for i in (1, 2, 3):
             M[f"{k}D{'ABC'[i - 1]}"] = pc(g(rep, f"D_S{i}")); M[f"{k}E{'ABC'[i - 1]}"] = pc(g(rep, f"E_S{i}"))
     sp = pd.read_csv(R / "writer_correctness_spearman.csv", index_col=0)
-    M["SpStrokeHc"] = f"{sp.loc['stroke', 'hc183']:.2f}"; M["SpStrokeFt"] = f"{sp.loc['stroke', 'finetuned']:.2f}"
+    M["SpStrokeHc"] = f"{sp.loc['stroke', 'hc183']:.2f}"
 
     au = json.loads((ROOT / "audit/geometric/summary.json").read_text())      # dataset validation (validate_dataset.py)
     M.update(AuditMaxDiff=au["same_prompt_different_writers_max_inliers"],

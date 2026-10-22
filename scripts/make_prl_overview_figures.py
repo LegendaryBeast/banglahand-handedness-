@@ -53,11 +53,11 @@ def text_block(path, ratio, width=1400):
     return np.asarray(crop.resize((width, round(width / ratio)), Image.Resampling.LANCZOS))
 
 
-def fig_dataset(out):
+def fig_dataset(out, run):
     meta = pd.read_csv(ROOT / "dataset/metadata/images.csv")
     fig = plt.figure(figsize=(7.16, 3.2))
     gs = fig.add_gridspec(2, 4, height_ratios=[1.0, 0.72], width_ratios=[1, 1, 1, 1.05], hspace=0.42, wspace=0.28,
-                          left=0.045, right=0.99, top=0.93, bottom=0.11)
+                          left=0.06, right=0.99, top=0.93, bottom=0.11)
     # (a) the same prompt S01 by three left- and three right-handed writers
     sub = gs[0, :3].subgridspec(2, 3, hspace=0.12, wspace=0.05)
     for row, (ws, col, lab) in enumerate([(SAMPLES_L, LEFT_C, "left-handed"), (SAMPLES_R, RIGHT_C, "right-handed")]):
@@ -91,53 +91,39 @@ def fig_dataset(out):
         ax.text(0.2 + sheet * 2.45 + 1.07, 7.6, f"sheet {sheet + 1}", ha="center", fontsize=5, color=MUTED)
     ax.text(0.2, 1.5, "S01-S06: Bangladesh, education,\ntechnology, environment, time,\nhealth; own: free topic. Pens and\npaper from one supply; one phone.",
             fontsize=4.9, color=MUTED, va="top", linespacing=1.3)
-    # (c) composition
-    ax = fig.add_subplot(gs[1, 0])
-    n = meta.groupby(["hand", "condition"]).size().unstack()
-    for i, (h, c) in enumerate([("left", LEFT_C), ("right", RIGHT_C)]):
-        ax.barh(i, n.loc[h, "shared"], color=c, height=0.55)
-        ax.barh(i, n.loc[h, "writer_specific"], left=n.loc[h, "shared"], color=c, alpha=0.45, height=0.55)
-        nw = meta[meta.hand == h].writer_id.nunique()
-        ax.text(4, i, f"{nw} writers, {n.loc[h].sum()} images", va="center", fontsize=5.4, color="white", fontweight="bold")
-    ax.set_yticks([0, 1]); ax.set_yticklabels(["left", "right"]); ax.set_xlim(0, 160); ax.invert_yaxis()
-    ax.set_xlabel("images (dark: shared, light: own text)", fontsize=5.6)
-    ax.spines[["top", "right"]].set_visible(False); ax.tick_params(labelsize=5.6)
-    ax.set_title("(c) Composition", fontsize=7, fontweight="bold", loc="left")
-    # (d) words per shared prompt / own text topics
-    ax = fig.add_subplot(gs[1, 1])
-    p = pd.read_csv(ROOT / "dataset/metadata/prompts.csv")
-    ax.bar(p.prompt_id, p.n_words, color="#93c5fd", width=0.6)
-    for x, v in zip(p.prompt_id, p.n_words):
-        ax.text(x, v + 0.8, str(v), ha="center", fontsize=5)
-    ax.set_ylim(0, 62); ax.set_ylabel("words", fontsize=5.6); ax.tick_params(labelsize=5.4)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.set_title("(d) Shared prompt length", fontsize=7, fontweight="bold", loc="left")
-    # (e) capture order
-    ax = fig.add_subplot(gs[1, 2])
-    t = meta.copy()
-    t["h"] = pd.to_datetime(t.capture_datetime, format="%Y:%m:%d %H:%M:%S")
-    first = t.groupby("writer_id").h.min().sort_values()
-    hrs = (first.dt.hour + first.dt.minute / 60).to_numpy()
-    cols = [LEFT_C if w.startswith("L") else RIGHT_C for w in first.index]
-    ys = np.where([w.startswith("L") for w in first.index], 0.22, -0.22)   # one row per group: blocks of writers
-    ax.scatter(hrs, ys, c=cols, s=9, lw=0)
-    ax.set_ylim(-0.6, 0.6); ax.set_yticks([-0.22, 0.22]); ax.set_yticklabels(["right-\nhanded", "left-\nhanded"], fontsize=5)
-    ax.set_xlim(np.floor(hrs.min()) - 0.1, np.ceil(hrs.max()) + 0.1)
-    ax.set_xlabel(f"time of photography (h), {t.h.dt.strftime('%d %b').iloc[0]}", fontsize=5.6)
-    ax.spines[["top", "right", "left"]].set_visible(False); ax.tick_params(axis="x", labelsize=5.4); ax.tick_params(axis="y", length=0)
-    ax.set_title("(e) Photography order", fontsize=7, fontweight="bold", loc="left")
-    # (f) duplicate screen
+    # (c)-(f) pseudo-pressure: ink deposition relative to the local paper level, writer means (run_pseudo_pressure.py)
+    pp = pd.read_csv(run / "pseudo_pressure_images.csv"); tests = pd.read_csv(run / "pseudo_pressure_tests.csv").set_index("measure")
+    tt = pd.to_datetime(pp.capture_datetime, format="%Y:%m:%d %H:%M:%S")
+    pp["hour"] = tt.dt.hour + tt.dt.minute / 60
+    wm = pp.groupby("writer_id").agg(hand=("hand", "first"), hour=("hour", "mean"), darkness_at_ref_width=("darkness_at_ref_width", "mean"),
+                                     edge_darkness=("edge_darkness", "mean"), stroke_width=("stroke_width", "mean"))
+    rng = np.random.default_rng(11)
+    panels = [("darkness_at_ref_width", "(c) Stroke-centre darkness", "relative darkness (equal width)"),
+              ("edge_darkness", "(d) Stroke-edge darkness", "relative darkness"),
+              ("stroke_width", "(e) Stroke width", "pixels (full resolution)")]
+    for j, (k, title, ylab) in enumerate(panels):
+        ax = fig.add_subplot(gs[1, j])
+        for i, (h, c) in enumerate([("left", LEFT_C), ("right", RIGHT_C)]):
+            v = wm[wm.hand == h][k].to_numpy()
+            ax.boxplot(v, positions=[i], widths=0.5, showfliers=False, medianprops=dict(color="k", lw=0.8),
+                       boxprops=dict(lw=0.6), whiskerprops=dict(lw=0.6), capprops=dict(lw=0.6))
+            ax.scatter(i + rng.uniform(-0.14, 0.14, len(v)), v, s=6, color=c, alpha=0.85, lw=0, zorder=3)
+        r = tests.loc[k]
+        ax.text(0.5, 1.0, f"g = {r.hedges_g:.2f}, p = {r.p_perm:.3f}".replace("-", "\u2212"), transform=ax.transAxes, ha="center", va="top", fontsize=5.2)
+        ax.set_xticks([0, 1]); ax.set_xticklabels(["left", "right"], fontsize=5.6); ax.tick_params(axis="y", labelsize=5.2)
+        ax.set_ylabel(ylab, fontsize=5.4); ax.spines[["top", "right"]].set_visible(False)
+        lo, hi = wm[k].min(), wm[k].max(); ax.set_ylim(lo - 0.05 * (hi - lo), hi + 0.22 * (hi - lo))
+        ax.set_title(title, fontsize=7, fontweight="bold", loc="left")
     ax = fig.add_subplot(gs[1, 3])
-    A = ROOT / "audit/geometric"
-    g = pd.read_csv(A / "geometric_pairs.csv.gz")
-    bins = np.logspace(0, np.log10(2500), 32)
-    ax.hist(np.clip(g[g.kind == "same_prompt_different_writers"].inliers, 1, None), bins=bins, color="#9ca3af", label="different writers")
-    raw = g[(g.kind == "unreleased_vs_released") & g.a.str.startswith("unreleased/P19") & g.b.str.startswith("released/R_p6_")]
-    ax.hist(raw.inliers, bins=bins, color="#dc2626", label="unreleased re-photograph")
-    ax.set_xscale("log"); ax.set_yscale("log"); ax.tick_params(labelsize=5.4)
-    ax.set_xlabel("SIFT-RANSAC inliers per image pair", fontsize=5.6); ax.set_ylabel("pairs", fontsize=5.6)
-    ax.legend(frameon=False, fontsize=4.8, loc="upper right"); ax.spines[["top", "right"]].set_visible(False)
-    ax.set_title("(f) Duplicate audit", fontsize=7, fontweight="bold", loc="left")
+    for h, c in [("left", LEFT_C), ("right", RIGHT_C)]:
+        g_ = wm[wm.hand == h]; ax.scatter(g_.hour, g_.darkness_at_ref_width, s=8, color=c, lw=0, label=f"{h}-handed")
+    r = tests.loc["darkness_at_ref_width"]
+    ax.text(0.5, 1.0, f"Spearman \u03c1 = {r.rho_time:.2f}".replace("-", "\u2212"), transform=ax.transAxes, ha="center", va="top", fontsize=5.2)
+    ax.set_xlabel(f"time of photography (h), {tt.dt.strftime('%d %b').iloc[0]}", fontsize=5.6); ax.set_ylabel("relative darkness (equal width)", fontsize=5.4)
+    ax.tick_params(labelsize=5.2); ax.spines[["top", "right"]].set_visible(False)
+    lo, hi = wm.darkness_at_ref_width.min(), wm.darkness_at_ref_width.max(); ax.set_ylim(lo - 0.05 * (hi - lo), hi + 0.22 * (hi - lo))
+    ax.legend(frameon=False, fontsize=4.8, loc="lower left", handletextpad=0.2, borderaxespad=0.1)
+    ax.set_title("(f) Darkness vs. time", fontsize=7, fontweight="bold", loc="left")
     save(fig, out, "fig1_dataset")
 
 
@@ -239,8 +225,9 @@ def fig_method(out):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--output", required=True)
-    out = ROOT / ap.parse_args().output; out.mkdir(parents=True, exist_ok=True)
-    fig_dataset(out); fig_method(out); print("written", out)
+    ap.add_argument("--run", default="results/final42_2026-10-19", help="run folder with pseudo_pressure_*.csv (Fig. 1c-f)")
+    a = ap.parse_args(); out = ROOT / a.output; out.mkdir(parents=True, exist_ok=True)
+    fig_dataset(out, ROOT / a.run); fig_method(out); print("written", out)
 
 
 if __name__ == "__main__":

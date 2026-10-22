@@ -143,7 +143,7 @@ run(["scripts/run_revision_analyses.py", "--run", RUN.relative_to(PROJECT), "--n
 run(["scripts/run_pseudo_pressure.py", "--run", RUN.relative_to(PROJECT)], RUN / "log_pressure.txt", RUN / "pseudo_pressure_tests.csv")'''),
              md("## Step 6 — figures, tables and paper macros"),
              code(r'''FIG = RUN / "figures"
-run(["scripts/make_prl_overview_figures.py", "--output", FIG.relative_to(PROJECT)], RUN / "log_overview.txt")
+run(["scripts/make_prl_overview_figures.py", "--output", FIG.relative_to(PROJECT), "--run", RUN.relative_to(PROJECT)], RUN / "log_overview.txt")
 run(["scripts/make_prl_figures_v2.py", "--run", RUN.relative_to(PROJECT), "--output", FIG.relative_to(PROJECT)], RUN / "log_figures.txt")
 run(["scripts/make_prl_macros.py", "--run", RUN.relative_to(PROJECT), "--output", (FIG / "results_macros.tex").relative_to(PROJECT)], RUN / "log_macros.txt")'''),
              md("## Main results"),
