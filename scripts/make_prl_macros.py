@@ -127,6 +127,8 @@ def main():
                  GreyFtAuc=f"{gs.loc['svm_A', 'auc_mean']:.2f}", GreyFtEA=pc(gs.loc["e2e_A", "ba_mean"]), GreyFtEC=pc(gs.loc["e2e_C", "ba_mean"]),
                  GreyFtAdj=pc(gs.loc["svm_adj_A", "ba_mean"]), GreyFtAdjLo=pc(gs.loc["svm_adj_A", "ci_low"]),
                  GreyFtAdjHi=pc(gs.loc["svm_adj_A", "ci_high"]))
+        if "svm_C" in gs.index:
+            M.update(GreyFtC=pc(gs.loc["svm_C", "ba_mean"]), GreyFtB=pc(gs.loc["svm_B", "ba_mean"]))
 
     dt = pd.read_csv(R / "descriptor_tests.csv").set_index("descriptor")
     for d, k in [("ink_density", "Ink"), ("row_profile_cv", "Row"), ("slant_deg", "Slant")]:
