@@ -183,6 +183,15 @@ FaAsd,3.9
 FaMir,71.4
 FaC,68.6
 FaFlip,5
+GreyFtA,71.8
+GreyFtLo,60.1
+GreyFtHi,82.7
+GreyFtAuc,0.79
+GreyFtEA,68.0
+GreyFtEC,70.6
+GreyFtAdj,54.2
+GreyFtAdjLo,43.2
+GreyFtAdjHi,65.0
 InkG,0.50
 InkPv,0.108
 InkQ,0.835

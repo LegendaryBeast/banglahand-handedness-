@@ -200,12 +200,17 @@ def tables(run, out):
     sm = pd.read_csv(run / "metrics_summary.csv"); cs = pd.read_csv(run / "controls_metrics_summary.csv")
     ci = pd.read_csv(run / "writer_bootstrap_ci.csv").set_index("rep")         # amendment 3
     cis = lambda r: f"{100 * ci.loc[r, 'ci_low']:.0f}--{100 * ci.loc[r, 'ci_high']:.0f}"
+    gs = pd.read_csv(run / "finetune_grey_summary.csv").set_index("readout") if (run / "finetune_grey_summary.csv").is_file() else None
+    gname = "ResNet-18 (fine-tuned)"                                           # amendment 5, post hoc baseline
     rows = []
     for rep in REPS + CTRL:
         src = sm if rep in REPS else cs
         g = lambda an, clf="svm", col="ba_mean": src[(src.rep == rep) & (src.clf == clf) & (src.analysis == an)][col].iloc[0]
         rows.append(f"{NAME[rep].replace(chr(10), ' ')} & {fmt(g('A'), g('A', col='ba_sd'))} & {cis(rep)} & {fmt(g('A', 'logistic'))} & {fmt(g('A', 'random_forest'))} & "
                     f"{fmt(g('C'), g('C', col='ba_sd'))} & {fmt(g('B'), g('B', col='ba_sd'))} & {fmt(g('ALL8'), g('ALL8', col='ba_sd'))} & {g('A', col='auc_mean'):.2f} \\\\")
+        if rep == "stroke_cnn" and gs is not None:
+            s = gs.loc["svm_A"]
+            rows.append(f"{gname} & {fmt(s.ba_mean, s.ba_sd)} & {100 * s.ci_low:.0f}--{100 * s.ci_high:.0f} & -- & -- & -- & -- & -- & {s.auc_mean:.2f} \\\\")
         if rep in ("combined", "stroke_cnn"):
             rows.append("\\addlinespace[2pt]")
     (out / "table_main.tex").write_text("\n".join(rows) + "\n")
@@ -228,6 +233,8 @@ def tables(run, out):
         rows.append(f"{NAME[rep].replace(chr(10), ' ')} & {fmt(p.observed_mean_ba)} & {p.p_mean:.3f} & {adj} & {tadj(rep, 'time')} & {tadj(rep, 'acquisition_and_time')} & "
                     f"{fmt(r.para_ba_writer_split)} & {fmt(r.para_ba_leaky)} & {fmt(r.writer_id_top1)} & "
                     f"{sgn(100 * c.transfer_C_minus_D.mean())} / {sgn(100 * c.varied_B_minus_E.mean())} \\\\")
+        if rep == "stroke_cnn" and gs is not None:
+            rows.append(f"{gname} & {fmt(gs.loc['svm_A', 'ba_mean'])} & -- & {fmt(gs.loc['svm_adj_A', 'ba_mean'])} & -- & -- & -- & -- & -- & -- \\\\")
     (out / "table_pitfalls.tex").write_text("\n".join(rows) + "\n")
     rows = []
     for rep in ["hc183", "style6", "stroke", "combined"]:

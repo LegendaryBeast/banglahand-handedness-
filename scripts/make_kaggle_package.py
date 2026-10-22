@@ -22,7 +22,7 @@ NB = ROOT / "notebooks"
 TOP = "bangla-handedness-42"
 CODE = ["final_study_pipeline.py", "run_crop_evaluation.py", "stroke_features.py", "extract_final_features.py",
         "extract_stroke_features.py", "run_final_experiments.py", "run_pitfall_analyses.py", "run_posthoc_confound_analyses.py",
-        "run_secondary_analyses.py", "run_finetuned_stroke_cnn.py", "run_adjusted_permutation.py", "run_framing_check.py",
+        "run_secondary_analyses.py", "run_finetuned_stroke_cnn.py", "run_finetuned_grey_cnn.py", "summarise_finetuned_grey_cnn.py", "run_adjusted_permutation.py", "run_framing_check.py",
         "run_tilt_check.py", "run_stroke_differences.py", "run_s3_sensitivity.py", "run_revision_analyses.py", "run_pseudo_pressure.py",
         "make_prl_figures_v2.py", "make_prl_macros.py", "make_prl_overview_figures.py"]
 WEIGHTS = ["resnet18-f37072fd.pth", "efficientnet_b0_rwightman-7f5810bc.pth", "vit_b_16-c867db91.pth"]
@@ -110,7 +110,7 @@ Download `/kaggle/working/results_RUN.zip` at the end.
 | 1 | features: HC-183, frozen ResNet-18/EfficientNet-B0/ViT-B/16, controls, style, STROKE, stroke tiles | GPU | 25-35 min |
 | 2 | 20 x 5-fold writer CV, all representations x 3 classifiers x text conditions; controls; ablations; sensitivity; learning curves; 999 whole-writer permutations | CPU | 2.5-4 h (QUICK: 15 min) |
 | 3 | pitfalls, adjustment, control conditions, single measures, mirror test | CPU | 30-45 min |
-| 4 | fine-tuned stroke ResNet-18 and mirror-trained control (5 x 5 folds each) | GPU | 30-50 min |
+| 4 | fine-tuned stroke ResNet-18 and mirror-trained control (5 x 5 folds each); ResNet-18 fine-tuned on grey photographs (20 x 5 folds) | GPU | 1.5-2 h |
 | 5 | post hoc: adjusted permutation, framing, tilt, stroke-bin differences, outlier-folder sensitivity, capture time, mirror-augmented STROKE, writer-bootstrap intervals | CPU | 90-120 min |
 | 6 | figures, LaTeX table rows and the macro file used by the paper | CPU | 2 min |
 
@@ -130,9 +130,11 @@ run(["scripts/extract_stroke_features.py", "--base", RUN.relative_to(PROJECT) / 
     RUN / "log_experiments.txt", RUN / "run_provenance.json")'''),
              md("## Step 3 — secondary analyses (CPU)"),
              code(r'''run(["scripts/run_secondary_analyses.py", "--run", RUN.relative_to(PROJECT), "--jobs", JOBS], RUN / "log_secondary.txt", RUN / "mirror_test.csv")'''),
-             md("## Step 4 — fine-tuned stroke network and mirror-trained control (GPU)"),
+             md("## Step 4 — fine-tuned networks: stroke network, mirror-trained control, grey-image ResNet-18 (GPU)"),
              code(r'''run(["scripts/run_finetuned_stroke_cnn.py", "--run", RUN.relative_to(PROJECT)], RUN / "log_finetune.txt", RUN / "finetune_metrics_by_split.csv")
-run(["scripts/run_finetuned_stroke_cnn.py", "--run", RUN.relative_to(PROJECT), "--mirror-augment"], RUN / "log_finetune_mirror.txt", RUN / "finetune_mirroraug_metrics_by_split.csv")'''),
+run(["scripts/run_finetuned_stroke_cnn.py", "--run", RUN.relative_to(PROJECT), "--mirror-augment"], RUN / "log_finetune_mirror.txt", RUN / "finetune_mirroraug_metrics_by_split.csv")
+run(["scripts/run_finetuned_grey_cnn.py", "--run", RUN.relative_to(PROJECT)], RUN / "log_finetune_grey.txt", RUN / "finetune_grey_metrics_by_split.csv")
+run(["scripts/summarise_finetuned_grey_cnn.py", "--run", RUN.relative_to(PROJECT)], RUN / "log_finetune_grey_summary.txt", RUN / "finetune_grey_summary.csv")'''),
              md("## Step 5 — post hoc analyses (CPU)"),
              code(r'''run(["scripts/run_adjusted_permutation.py", "--run", RUN.relative_to(PROJECT), "--n-perm", N_PERM, "--jobs", JOBS], RUN / "log_adjperm.txt", RUN / "adjusted_permutation.csv")
 run(["scripts/run_framing_check.py", "--run", RUN.relative_to(PROJECT)], RUN / "log_framing.txt", RUN / "framing_check_tests.csv")
@@ -152,7 +154,7 @@ pd.set_option("display.precision", 3)
 s = pd.read_csv(RUN / "metrics_summary.csv")
 display((100 * s[s.analysis.isin(["A", "C", "B", "ALL8"])].pivot_table(index=["rep", "clf"], columns="analysis", values="ba_mean")[["A", "C", "B", "ALL8"]]).round(1))
 display(pd.read_csv(RUN / "permutation_tests.csv")[["rep", "observed_mean_ba", "p_mean", "null_q95"]])
-for f in ["finetune_metrics_by_split.csv", "finetune_mirroraug_metrics_by_split.csv"]:
+for f in ["finetune_metrics_by_split.csv", "finetune_mirroraug_metrics_by_split.csv", "finetune_grey_metrics_by_split.csv"]:
     print(f); display(pd.read_csv(RUN / f).drop(columns="seed").agg(["mean", "std"]))
 display(pd.read_csv(RUN / "mirror_test.csv", index_col=0))
 display(pd.read_csv(RUN / "adjusted.csv"))

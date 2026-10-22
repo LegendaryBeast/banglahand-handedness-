@@ -5,7 +5,8 @@ Upload `bangla-handedness-42.zip` as a **new Kaggle dataset** (Datasets → New 
 | notebook | accelerator | time | purpose |
 |---|---|---|---|
 | `01_dataset_check.ipynb` | none | ~2 min | checksums, counts, sample paragraphs |
-| `02_prl_experiments.ipynb` | **GPU T4 x1** | ~5–7 h (QUICK: ~45 min) | every experiment, figure, table and number of the PRL paper |
+| `02_prl_experiments.ipynb` | **GPU T4 x1** | ~6–8 h (QUICK: ~45 min) | every experiment, figure, table and number of the PRL paper |
+| `03_grey_cnn_baseline.ipynb` | **GPU T4 x1** | ~1 h | only the ResNet-18 fine-tuned on grey photographs; uses its own smaller package `banglahand-grey-cnn.zip` (`scripts/make_kaggle_grey_cnn_package.py`) |
 
 Contents of the dataset:
 

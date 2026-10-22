@@ -121,6 +121,13 @@ def main():
         M.update(FaA=pc(fa.ba_A.mean()), FaAsd=pc(fa.ba_A.std()), FaMir=pc(fa.ba_A_mirror.mean()), FaC=pc(fa.ba_C.mean()),
                  FaFlip=f"{100 * fa.flip_fraction.mean():.0f}")
 
+    if (R / "finetune_grey_summary.csv").is_file():                       # amendment 5: fine-tuned ResNet-18 on grey tiles
+        gs = pd.read_csv(R / "finetune_grey_summary.csv").set_index("readout")
+        M.update(GreyFtA=pc(gs.loc["svm_A", "ba_mean"]), GreyFtLo=pc(gs.loc["svm_A", "ci_low"]), GreyFtHi=pc(gs.loc["svm_A", "ci_high"]),
+                 GreyFtAuc=f"{gs.loc['svm_A', 'auc_mean']:.2f}", GreyFtEA=pc(gs.loc["e2e_A", "ba_mean"]), GreyFtEC=pc(gs.loc["e2e_C", "ba_mean"]),
+                 GreyFtAdj=pc(gs.loc["svm_adj_A", "ba_mean"]), GreyFtAdjLo=pc(gs.loc["svm_adj_A", "ci_low"]),
+                 GreyFtAdjHi=pc(gs.loc["svm_adj_A", "ci_high"]))
+
     dt = pd.read_csv(R / "descriptor_tests.csv").set_index("descriptor")
     for d, k in [("ink_density", "Ink"), ("row_profile_cv", "Row"), ("slant_deg", "Slant")]:
         M[f"{k}G"] = f"{dt.loc[d, 'hedges_g']:.2f}".replace("-", "$-$"); M[f"{k}Pv"] = p3(dt.loc[d, "p_perm"]); M[f"{k}Q"] = p3(dt.loc[d, "q_bh"])
