@@ -3,7 +3,7 @@ message: "If you use this code, please cite the dataset and the articles below."
 title: "BanglaHand: code for writer-independent handedness identification from Bangla handwriting"
 type: software
 license: MIT
-repository-code: "https://github.com/GITHUB_USER/banglahand-handedness"
+repository-code: "https://github.com/LegendaryBeast/banglahand-handedness"
 authors:
   - family-names: Prappo
     given-names: Tanzim Hasan
