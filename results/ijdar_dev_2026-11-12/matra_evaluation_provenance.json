@@ -1,0 +1,31 @@
+{
+  "base": "results/final42_2026-10-19",
+  "n_perm": 999,
+  "seeds": [
+    2026,
+    2027,
+    2028,
+    2029,
+    2030,
+    2031,
+    2032,
+    2033,
+    2034,
+    2035,
+    2036,
+    2037,
+    2038,
+    2039,
+    2040,
+    2041,
+    2042,
+    2043,
+    2044,
+    2045
+  ],
+  "imputed_values": {
+    "matra": 0,
+    "matra_mirror": 0
+  },
+  "status": "exploratory development on v1; descriptor fixed before label-dependent analyses"
+}
