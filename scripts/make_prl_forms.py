@@ -5,7 +5,8 @@ Writes manuscripts/prl/forms/authorship_confirmation.pdf with the form's first t
   1  Authorship Confirmation (corresponding author, date; no preprints, no conference versions)
   2  Graphical abstract page (title, authors, manuscripts/prl/graphical_abstract/graphical_abstract.png, short text)
   3  Research highlights page (manuscripts/prl/highlights.txt; each at most 85 characters)
-The signature line is left blank for the corresponding author. Upload as item type 'Cover Letter'.
+The corresponding author's signature image (forms/signature_corresponding_author.png) is placed on the Signature line
+when present. Upload as item type 'Cover Letter'.
 """
 from pathlib import Path
 
@@ -17,7 +18,8 @@ PRL = ROOT / "manuscripts/prl"
 FORM = PRL / "forms/patrec-authorship-and-formatting_official.pdf"
 TITLE = "Writer-independent handedness identification from offline Bangla handwriting under controlled acquisition"
 AUTHORS = "Tanzim Hasan Prappo, Sayeed Hassan, Sayem Ali, Sukhendra Nath Dhar, M. Shahidur Rahman"
-CORRESPONDING, DATE = "Tanzim Hasan Prappo", "22 October 2026"
+CORRESPONDING, DATE = "Tanzim Hasan Prappo", "25 October 2026"
+SIGNATURE = PRL / "forms/signature_corresponding_author.png"   # supplied by the corresponding author; not in git
 GA_TEXT = ("Handedness of unseen writers is identified from photographed Bangla paragraphs (77% balanced accuracy, "
            "p = 0.001). Part of the cue is darker stroke centres in right-handed writers; with darkness and brightness "
            "removed, the gradient descriptor keeps 65% while CNN features fall near chance.")
@@ -33,6 +35,9 @@ def main():
     p = d[0]
     p.insert_text((156, 231.5), CORRESPONDING, fontname=F, fontsize=S)
     p.insert_text((305, 418.6), DATE, fontname=F, fontsize=S)
+    if SIGNATURE.is_file():                               # on the Signature line (x 80.7-279.1, y 420.4)
+        w, h = Image.open(SIGNATURE).size
+        p.insert_image(fitz.Rect(110, 402, 110 + 24 * w / h, 426), filename=str(SIGNATURE))
     for y, t in [(485, "None."), (581, "None."), (653, "Not applicable.")]:
         p.insert_text((42.5, y), t, fontname=F, fontsize=S)
 

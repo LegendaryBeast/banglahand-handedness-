@@ -4,7 +4,9 @@
 Only files the .tex actually references are copied; the folder is rebuilt from scratch and checked to compile on its own.
 PRL also gets upload/: one file per Editorial Manager item (PRL Guide for Authors, mandatory requirements 1-4):
 the PDF, the LaTeX source zip, highlights (.docx), graphical abstract (.tif/.pdf), the filled authorship
-confirmation form (scripts/make_prl_forms.py) and every figure as a separate Figure_<n>.pdf.
+confirmation form (scripts/make_prl_forms.py), the declaration of competing interests (.docx, Elsevier's standard
+wording), every figure as a separate Figure_<n>.pdf, and the Response to Technical Check Results (.docx) for the
+resubmission of PRLETTERS-D-26-02698 (authors and emails read from the .tex; non-institutional addresses are flagged).
 """
 import re
 import shutil
@@ -47,10 +49,44 @@ def prl_upload(d, sub, base, figs_in_order):
     for ext in ("tif", "pdf"):
         shutil.copy(d / f"graphical_abstract/graphical_abstract.{ext}", up / f"Graphical_abstract.{ext}")
     shutil.copy(d / "forms/authorship_confirmation.pdf", up / "Authorship_confirmation_form.pdf")
+    title = re.search(r"\\title\{(.+?)\}", (d / f"{base}.tex").read_text()).group(1)
+    doc = docx.Document(); doc.add_heading("Declaration of interests", level=1)
+    doc.add_paragraph(f"Manuscript: {title}")
+    doc.add_paragraph("\u2612 The authors declare that they have no known competing financial interests or personal relationships "
+                      "that could have appeared to influence the work reported in this paper.")
+    doc.add_paragraph("\u2610 The authors declare the following financial interests/personal relationships which may be "
+                      "considered as potential competing interests:")
+    doc.save(up / "Declaration_of_competing_interests.docx")
+    technical_check_response(d / f"{base}.tex", title, up / "Response_to_technical_check.docx")
     shutil.copy(d / "cover_letter.txt", up / "Cover_letter.txt")
     shutil.copy(d / "SUBMISSION_STEPS.md", up / "SUBMISSION_STEPS.md")
     for n, f in enumerate([f for f in figs_in_order if f.endswith(".pdf")], 1):
         shutil.copy(sub / f, up / f"Figure_{n}.pdf")
+
+
+INSTITUTIONAL = ("sust.edu", ".edu", ".ac.bd", ".ac.")
+
+
+def technical_check_response(tex_path, title, out):
+    """Reply to the technical check of 22-25 Oct 2026 (institutional emails; authorship form under 'Cover Letter')."""
+    authors = re.findall(r"\\author\[[^]]*\]\{([^}\\]+)(?:\\corref\{[^}]*\})?\}\s*\\ead\{([^}]+)\}", tex_path.read_text())
+    assert len(authors) == 5, authors
+    bad = [e for _, e in authors if not any(s in e for s in INSTITUTIONAL)]
+    if bad:
+        print("WARNING: non-institutional email addresses in the manuscript:", ", ".join(bad))
+    doc = docx.Document(); doc.add_heading("Response to Technical Check Results", level=1)
+    doc.add_paragraph(f"Ref. PRLETTERS-D-26-02698\nTitle: {title}")
+    doc.add_paragraph("We thank the journal office for the technical check. Both comments have been addressed as follows.")
+    doc.add_heading("Comment 1: institutional email addresses", level=2)
+    doc.add_paragraph("Response: The institutional email address of every author is now given both in the author details of the "
+                      "submission system and in the footnote of the first manuscript page:")
+    for name, email in authors:
+        doc.add_paragraph(f"{name.strip()}: {email}", style="List Bullet")
+    doc.add_heading("Comment 2: Authorship Confirmation form", level=2)
+    doc.add_paragraph("Response: The Authorship Confirmation form, downloaded from the journal link, completed in the journal's "
+                      "format and signed by the corresponding author on behalf of all authors, has been uploaded under the item "
+                      "type 'Cover Letter'. The form also includes the graphical abstract and research highlights pages.")
+    doc.save(out)
 
 
 def main():
