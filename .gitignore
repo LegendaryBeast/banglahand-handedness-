@@ -26,3 +26,11 @@ __pycache__/
 /*.pdf
 # 59 MB fine-tuned features (scripts/run_finetuned_grey_cnn.py output); regenerate with step 7c of REPRODUCIBILITY.md
 results/*/finetune_grey_embeddings.npz
+
+# External datasets (CSAFE Handwriting Database v2, CC BY 4.0; obtained separately)
+external/
+# Line-free fine-tuning: 188 MB tile cache and links to local PRL features (regenerate with scripts/run_linefree_finetune.py)
+results/*/linefree_finetune/features/
+results/*/*/finetune_grey_embeddings.npz
+# Pipeline status markers
+results/**/STATUS_*

@@ -1,0 +1,28 @@
+{
+  "title": "CSAFE Handwriting Database v2: external application of the BanglaHand writer-independent protocol (IJDAR)",
+  "written": "2026-11-12, before any outcome of this protocol was computed",
+  "prior_knowledge": "Handedness accuracies of whole-page HC-183 and STROKE on this 96-writer cohort under a different protocol (session-1 training, single query pages, Platt calibration; IET Biometrics submission, Supporting Information S13/S16) were known to the authors. The representations, conditions, endpoints and primary hypotheses below are fixed without reference to any result of this protocol.",
+  "dataset": "CSAFE Handwriting Database v2, doi:10.25380/iastate.10062203.v2, CC BY 4.0; local copy external/csafe_v2 (selected pages only).",
+  "cohort": "The 96 writers of the earlier deterministic selection: all 48 left-handed writers with a binary hand label and 48 right-handed writers drawn with a fixed seed; ambidextrous and missing-hand writers excluded. No writer or page is added or removed on the basis of results.",
+  "pages": {"paragraph_1_3": "session 1, London letter (LND), repetitions 1-3", "paragraph_4_6": "session 1, Wizard of Oz (WOZ), repetitions 1-3",
+            "paragraph_7": "session 2, LND", "paragraph_8": "session 2, WOZ", "paragraph_9": "session 3, WOZ"},
+  "conditions": {"A": "train and test on session-1 pages (paragraphs 1-6), writer-independent",
+                 "X": "model A applied to the test writers' later-session pages (paragraphs 7-9)",
+                 "C2": "model A applied to session-2 pages only (paragraphs 7-8)", "C3": "model A applied to the session-3 page (paragraph 9)"},
+  "evaluation": "Identical to BanglaHand: stratified five-fold writer CV repeated with seeds 2026-2045; every page of a test writer held out; linear SVM C = 0.1 (primary), logistic regression and random forest tuned on training writers (secondary); writer called left-handed if the mean page margin >= 0; endpoint writer balanced accuracy averaged over repetitions; 999 whole-writer permutations with folds regenerated; 95% class-stratified writer-bootstrap interval (2,000 resamples).",
+  "representations": {
+    "hc183_tb": "PRIMARY. HC-183 (run_crop_evaluation.ink_features on the 768-px ink) cropped to the text block, as the line-free text-block estimate on BanglaHand.",
+    "hc183_page": "HC-183 on the whole scanned page (comparison; includes the share of the page the writing occupies).",
+    "stroke": "STROKE (stroke_features.py), text block at 1,536 px.",
+    "resnet18, efficientnet_b0, vit_b_16": "frozen ImageNet embeddings of 224-px tiles with >= 1% ink (extract_final_features.tiles).",
+    "edge_direction, edge_hinge, chain_code, hog_glbp, lbp": "re-implemented earlier methods (extract_prior_baselines.py).",
+    "global_intensity, background": "acquisition controls: seven grey-level statistics of the whole scan and of paper pixels only.",
+    "layout": "page-occupancy and layout measures (text-block position and extent, skew, line slope, spacing, margins; printed-line detector expected to find none)."
+  },
+  "adjustment": "Ink density and the seven photo-intensity statistics regressed out of every feature within training folds (as on BanglaHand).",
+  "audits": "Writer-identification top-1 (leave-one-page-out 1-NN on session-1 pages) and paragraph BA under image-level versus writer-level folds.",
+  "primary_hypotheses": {"H1": "hc183_tb, SVM, condition A: writer BA > 0.5 (permutation test)",
+                         "H2": "hc183_tb, SVM, condition X: writer BA > 0.5 (permutation test with model A refitted under permuted labels)"},
+  "multiplicity": "Holm over H1 and H2; everything else secondary and descriptive.",
+  "not_applicable": "MATRA-INK (Latin script has no headstroke); printed-border analysis (no printed lines on these scans; checked by the detector)."
+}

@@ -52,6 +52,22 @@ Set `R=results/final42_2026-10-19` to rerun into the published folder, or use a 
 
 Steps 3–8 are the analysis. The PRL text contains no hand-typed result: the numbers are LaTeX macros from step 9, and the table rows are pasted verbatim from the generated `figures/table_*.tex`. Step 10 fails if anything has drifted.
 
+## 2b. IJDAR extension (printed-border audit, MATRA-INK, earlier methods, CSAFE)
+
+These steps start from the saved PRL run `results/final42_2026-10-19` and write to `results/ijdar_dev_2026-11-12` (BanglaHand) and `results/csafe_ijdar_2026-11-12` (CSAFE). Defaults point to these folders.
+
+| # | Command | Writes | Used in |
+|---|---|---|---|
+| E1 | `python scripts/extract_prior_baselines.py` · `python scripts/run_prior_baselines.py` | edge-direction, edge-hinge, chain code, HOG + GLBP and uniform LBP under the writer-independent protocol | IJDAR Table 3 |
+| E2 | `python scripts/matra_features.py --output results/ijdar_dev_2026-11-12/features` · `python scripts/run_matra_evaluation.py` · `python scripts/run_blur_control.py` | MATRA-INK features, evaluation, mirror test, blur and focus control | MATRA-INK section, Fig. 7 |
+| E3 | `python scripts/run_layout_check.py` · `python scripts/run_lineless_embeddings.py` · `python scripts/extract_linefree_stroke.py` | printed-line detection, framing and layout measures, line-free text blocks, their HC-183, CNN and STROKE features | printed-border section, Fig. 6 |
+| E4 | `python scripts/run_linefree_primary.py` · `python scripts/run_linefree_primary.py --reps stroke_lf --out linefree_table_rows_stroke.csv` · `python scripts/save_linefree_null.py` | line-free primary rows (all conditions, permutations, adjustments, pitfalls) and the line-free HC-183 permutation null | Table 2, Supplementary Table S1, Fig. 1e |
+| E5 | `python scripts/run_linefree_finetune.py` · `python scripts/summarise_finetuned_grey_cnn.py --run results/ijdar_dev_2026-11-12/linefree_finetune` | ResNet-18 fine-tuned on line-free grey tiles (about 5 h on MPS; the 188 MB tile cache is not in the repository) | Table 2, Supplementary Table S1 |
+| E6 | `python scripts/extract_csafe_features.py --stage hand` · `python scripts/extract_csafe_features.py --stage deep` · `python scripts/run_csafe_evaluation.py` · `python scripts/run_csafe_orientation_check.py` | CSAFE features of the 96 selected writers, the evaluation fixed in `protocol.json`, the post hoc line-orientation check | Table 4, Fig. 8, Supplementary Table S3 |
+| E7 | `python scripts/make_ijdar_figures.py` · `make_ijdar_layout_figures.py` · `make_ijdar_overview.py` · `make_ijdar_csafe_figure.py` · `make_ijdar_layout_macros.py` · `make_ijdar_tables.py` · `make_ijdar_csafe_macros.py` (authors only: write into the manuscript sources) | every IJDAR figure, table row and number macro | manuscript |
+
+**CSAFE inputs.** Download the CSAFE Handwriting Database v2 (doi:10.25380/iastate.10062203.v2, CC BY 4.0) and place `surveydata_v2.csv` and the session folders under `external/csafe_v2/` (not in the repository). The 96 selected writers (all 48 left-handed, 48 right-handed drawn with seed 20261108) and their 864 pages are listed in `results/csafe_ijdar_2026-11-12/features/csafe_meta.csv`; the derived features (`csafe_hand.npz`, `csafe_deep.npz`) are included, so steps after extraction run without the images. `protocol.json` was written, and its SHA-256 recorded, before any CSAFE outcome was computed.
+
 ## 3. What reproduces exactly
 
 - **Deterministic:** dataset validation (exact matching, fixed RANSAC seed), the classical models (HC-183, Style-6, STROKE, Combined, controls), all cross-validation folds (seeds 2026–2045) and all permutation tests (seed 2029). With the pinned library versions they reproduce the saved files exactly.

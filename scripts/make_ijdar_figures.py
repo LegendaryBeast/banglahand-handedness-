@@ -54,8 +54,8 @@ def fig_matra():
     z = np.load(DEV / "features/matra_features.npz", allow_pickle=True)
     names = list(z["names"]); wm = writer_means(z["matra"], names); rng = np.random.default_rng(7)
     T = pd.read_csv(DEV / "matra_feature_tests.csv").set_index("feature")
-    fig = plt.figure(figsize=(7.1, 3.3))
-    gs = fig.add_gridspec(2, 6, height_ratios=[0.72, 1], hspace=0.38, wspace=0.9)
+    fig = plt.figure(figsize=(7.16, 3.75))
+    gs = fig.add_gridspec(2, 6, height_ratios=[0.9, 1], hspace=0.34, wspace=0.9, left=0.07, right=0.99, top=0.95, bottom=0.11)
     headstroke_panel(fig.add_subplot(gs[0, :3]), "Left-Handed/P1/paragraph_01.jpg", "(a) Left-handed writer L1", LEFT_C)
     headstroke_panel(fig.add_subplot(gs[0, 3:]), "Right-Handed/P2/paragraph_03.jpg", "(b) Right-handed writer R2", RIGHT_C)
     cols = [f"cross_{k:02d}" for k in range(len(mf.U))]
@@ -85,27 +85,28 @@ def border_panel(ax, rel, title):
     a = lc.load(rel); lines, _ = lc.ruled_lines(a)
     rgb = np.repeat(np.clip(a, 0, 255).astype(np.uint8)[..., None], 3, 2)
     rgb[lines] = (220, 38, 38)
-    ax.imshow(rgb); ax.set_title(title, loc="left"); ax.axis("off")
+    ax.imshow(rgb); ax.set_title(title, loc="left", weight="bold"); ax.axis("off")
 
 
 def fig_border():
     img = pd.read_csv(DEV / "layout_images.csv")
     S = pd.read_csv(DEV / "layout_cv_summary.csv").set_index("rep").ba_mean
     E = pd.read_csv(DEV / "layout_cv_adjusted.csv").set_index(["rep", "covariates"]).adjusted_ba
-    fig = plt.figure(figsize=(7.1, 3.7))
-    gs = fig.add_gridspec(2, 3, width_ratios=[1.25, 1.25, 0.8], hspace=0.35, wspace=0.4)
-    border_panel(fig.add_subplot(gs[0, 0]), "Right-Handed/P9/paragraph_02.jpg", "(a) Right-handed R9: border visible")
-    border_panel(fig.add_subplot(gs[0, 1]), "Left-Handed/P11/paragraph_02.jpg", "(b) Left-handed L11: no border")
-    ax = fig.add_subplot(gs[0, 2])
+    fig = plt.figure(figsize=(7.16, 4.7))
+    gt = fig.add_gridspec(1, 3, width_ratios=[1.5, 1.5, 0.8], wspace=0.22, left=0.005, right=0.985, top=0.945, bottom=0.625)
+    gb = fig.add_gridspec(1, 1, left=0.285, right=0.975, top=0.535, bottom=0.08)
+    border_panel(fig.add_subplot(gt[0, 0]), "Right-Handed/P9/paragraph_02.jpg", "(a) Right-handed R9: border visible")
+    border_panel(fig.add_subplot(gt[0, 1]), "Left-Handed/P11/paragraph_02.jpg", "(b) Left-handed L11: no border")
+    ax = fig.add_subplot(gt[0, 2])
     w = img[img.para <= 8].groupby("writer").agg(label=("label", "first"), frac=("has_ruled", "mean"))
     rng = np.random.default_rng(3)
     for lab, c, xpos in ((1, LEFT_C, 0), (0, RIGHT_C, 1)):
         v = w[w.label == lab].frac.to_numpy()
         ax.scatter(xpos + rng.uniform(-0.15, 0.15, len(v)), 100 * v, s=9, color=c, alpha=0.8, lw=0)
         ax.plot([xpos - 0.25, xpos + 0.25], [100 * v.mean()] * 2, color="k", lw=1)
-    ax.set_xticks([0, 1], ["left", "right"]); ax.set_ylabel("pages with border (%)")
-    ax.set_title("(c) Per writer", loc="left"); ax.set_xlim(-0.5, 1.5)
-    ax = fig.add_subplot(gs[1, :])
+    ax.set_xticks([0, 1], ["left-\nhanded", "right-\nhanded"]); ax.set_ylabel("%")
+    ax.set_title("(c) Pages with a border, per writer", loc="left", weight="bold"); ax.set_xlim(-0.5, 1.5)
+    ax = fig.add_subplot(gb[0, 0])
     rows = [("Framing only (no handwriting)", S["framing"], "#dc2626"),
             ("Writers' own layout (skew, spacing, margins)", S["behaviour"], "#9ca3af"),
             ("HC-183, whole photograph", S["hc183"], "#111827"),
@@ -125,7 +126,7 @@ def fig_border():
         ax.text(100 * r[1] + 0.5, yi, f"{100 * r[1]:.1f}", va="center", fontsize=6)
     ax.set_yticks(y, [r[0] for r in rows]); ax.axvline(50, color="k", ls=":", lw=0.8)
     ax.set_xlim(40, 85); ax.set_xlabel("writer balanced accuracy (%), linear SVM, condition A")
-    ax.set_title("(d) What the printed border is worth", loc="left")
+    ax.set_title("(d) What the printed border is worth", loc="left", weight="bold")
     fig.savefig(OUT / "fig8_border.pdf", bbox_inches="tight"); plt.close(fig)
 
 
