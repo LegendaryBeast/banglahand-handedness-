@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""IJDAR Tables 1-3: a line-free text-block block (primary) above the whole-photograph rows of the PRL study.
+"""IJDAR Tables 1-3: a line-free text-block block (main estimate, post hoc) above the whole-photograph rows of the PRL study.
 
 Line-free rows come from results/ijdar_dev_2026-11-12/linefree_table_rows*.csv (run_linefree_primary.py) and, for the
 fine-tuned ResNet-18, from linefree_finetune/finetune_grey_summary.csv and finetune_grey_pitfalls.csv
@@ -33,7 +33,7 @@ def main():
     fts = pd.read_csv(ft_dir / "finetune_grey_summary.csv").set_index("readout") if (ft_dir / "finetune_grey_summary.csv").exists() else None
     ftp = pd.read_csv(ft_dir / "finetune_grey_pitfalls.csv").iloc[0] if (ft_dir / "finetune_grey_pitfalls.csv").exists() else None
     reps = [r for r in ORDER if r in R.index]
-    main_rows, pit_rows = [head("Line-free text block (printed lines removed; primary)", 9)], [head("Line-free text block (printed lines removed; primary)", 10)]
+    main_rows, pit_rows = [head("Line-free text block (printed lines removed; main estimate, post hoc)", 9)], [head("Line-free text block (printed lines removed; main estimate, post hoc)", 10)]
     for r in reps:
         x = R.loc[r]; nm = NAME[r] if r != "hc183_lf" else "\\textbf{HC-183}"
         main_rows.append(f"{nm} & {fs(x.A, x.A_sd)} & {100 * x.ci_low:.0f}--{100 * x.ci_high:.0f} & {f1(x.LR)} & {f1(x.RF)} & "

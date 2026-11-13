@@ -194,14 +194,15 @@ def main():
     # (f) leakage: paragraph BA, writer-level vs image-level split
     label(fig, 0.470, Y2 + H2 + 0.012, "f", "Leakage via writer identity")
     B = pd.read_csv(DEV / "baselines_pitfalls_adjusted.csv").set_index("rep")
-    R = pd.read_csv(DEV / "linefree_table_rows.csv").set_index("rep")
+    R = pd.concat([pd.read_csv(DEV / f) for f in ("linefree_table_rows.csv", "linefree_table_rows_stroke.csv")]).drop_duplicates("rep", keep="last").set_index("rep")
     rows = [("Edge-hinge", B.loc["edge_hinge", "para_ba_writer_split"], B.loc["edge_hinge", "para_ba_leaky"]),
             ("Chain code", B.loc["chain_code", "para_ba_writer_split"], B.loc["chain_code", "para_ba_leaky"]),
             ("Edge-direction", B.loc["edge_direction", "para_ba_writer_split"], B.loc["edge_direction", "para_ba_leaky"]),
             ("ViT-B/16", R.loc["vit_b_16_lf", "para_ba_writer"], R.loc["vit_b_16_lf", "para_ba_leaky"]),
             ("ResNet-18", R.loc["resnet18_lf", "para_ba_writer"], R.loc["resnet18_lf", "para_ba_leaky"]),
             ("HOG + GLBP", B.loc["hog_glbp", "para_ba_writer_split"], B.loc["hog_glbp", "para_ba_leaky"]),
-            ("HC-183", R.loc["hc183_lf", "para_ba_writer"], R.loc["hc183_lf", "para_ba_leaky"])]
+            ("HC-183", R.loc["hc183_lf", "para_ba_writer"], R.loc["hc183_lf", "para_ba_leaky"]),
+            ("STROKE", R.loc["stroke_lf", "para_ba_writer"], R.loc["stroke_lf", "para_ba_leaky"])]
     rows.sort(key=lambda r: r[2] - r[1])
     ax = fig.add_axes([0.540, Y2 + 0.085, 0.135, H2 - 0.135])
     for i, (nm, wv, lv) in enumerate(rows):

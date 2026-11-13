@@ -84,6 +84,8 @@ def main():
                   "vHcLfB": pct(x.B), "vHcLfAll": pct(x.ALL8), "vHcLfTime": pct(x.time_adj), "vHcLfAcqTime": pct(x.acq_time),
                   "vHcLfParaW": pct(x.para_ba_writer), "vHcLfLeaky": pct(x.para_ba_leaky), "vHcLfWid": pct(x.writer_id_top1),
                   "vHcLfCD": f"{100 * x.C_minus_D:+.1f}".replace("-", "$-$"), "vHcLfBE": f"{100 * x.B_minus_E:+.1f}".replace("-", "$-$")})
+        gains = list(100 * (R.para_ba_leaky - R.para_ba_writer).dropna()) + list(100 * (B.para_ba_leaky - B.para_ba_writer_split))
+        m["vLeakGainMax"] = f"{max(gains):.0f}"                 # largest image-level-split inflation on BanglaHand (Fig. 1f)
         nets = [r for r in ("resnet18_lf", "efficientnet_b0_lf", "vit_b_16_lf") if r in R.index]
         m["vNetLfRange"] = f"{100 * R.loc[nets, 'A'].min():.1f}--{100 * R.loc[nets, 'A'].max():.1f}"
         m["vNetLfPmax"] = f"{R.loc[nets, 'p'].max():.3f}"
