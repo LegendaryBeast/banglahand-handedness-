@@ -70,27 +70,27 @@ def fig_dataset(out, run):
             ax.set_xticks([]); ax.set_yticks([])
             for s in ax.spines.values():
                 s.set_color(col); s.set_linewidth(1.1)
-            ax.text(0.015, 0.04, w.replace("_p", " P"), transform=ax.transAxes, fontsize=5.4, color="white",
+            ax.text(0.015, 0.04, w.replace("_p", " P"), transform=ax.transAxes, fontsize=6.2, color="white",
                     bbox=dict(boxstyle="round,pad=0.15", fc=col, ec="none"))
             if j == 0:
-                ax.set_ylabel(lab, color=col, fontsize=6.5, labelpad=2)
-    fig.text(0.03, 0.955, "(a) The same shared prompt (S01) written by three left- and three right-handed writers", fontsize=7, fontweight="bold")
+                ax.set_ylabel(lab, color=col, fontsize=7.5, labelpad=2)
+    fig.text(0.03, 0.955, "(a) The same shared prompt (S01) written by three left- and three right-handed writers", fontsize=8, fontweight="bold")
     # (b) per-writer structure
     ax = fig.add_subplot(gs[0, 3]); ax.set_xlim(0, 10); ax.set_ylim(0, 10); ax.axis("off")
-    ax.text(0, 9.9, "(b) Per writer", fontsize=7, fontweight="bold", va="top")
+    ax.text(0, 9.9, "(b) Per writer", fontsize=8, fontweight="bold", va="top")
     for sheet in range(4):   # one plain page outline per sheet, two paragraphs per page
         x = 0.2 + sheet * 2.45
         ax.add_patch(Rectangle((x, 2.45), 2.15, 4.75, fc="white", ec="#6b7280", lw=0.6))
         ax.plot([x + 0.15, x + 2.0], [4.82, 4.82], color="#d1d5db", lw=0.5)
         for pos in range(2):
             k = 2 * sheet + pos; y = 4.95 - pos * 2.4; shared = k < 6
-            ax.text(x + 1.07, y + 1.25, f"{k + 1}", ha="center", va="center", fontsize=8, fontweight="bold", color=INK, zorder=2)
-            ax.text(x + 1.07, y + 0.45, f"S0{k + 1}" if shared else "own", ha="center", va="center", fontsize=5.2,
+            ax.text(x + 1.07, y + 1.25, f"{k + 1}", ha="center", va="center", fontsize=9.2, fontweight="bold", color=INK, zorder=2)
+            ax.text(x + 1.07, y + 0.45, f"S0{k + 1}" if shared else "own", ha="center", va="center", fontsize=6,
                     color=INK if shared else "#92400e", fontstyle="normal" if shared else "italic", zorder=2)
     for sheet in range(4):
-        ax.text(0.2 + sheet * 2.45 + 1.07, 7.6, f"sheet {sheet + 1}", ha="center", fontsize=5, color=MUTED)
+        ax.text(0.2 + sheet * 2.45 + 1.07, 7.6, f"sheet {sheet + 1}", ha="center", fontsize=5.8, color=MUTED)
     ax.text(0.2, 1.5, "S01-S06: Bangladesh, education,\ntechnology, environment, time,\nhealth; own: free topic. Pens and\npaper from one supply; one phone.",
-            fontsize=4.9, color=MUTED, va="top", linespacing=1.3)
+            fontsize=5.6, color=MUTED, va="top", linespacing=1.3)
     # (c)-(f) pseudo-pressure: ink deposition relative to the local paper level, writer means (run_pseudo_pressure.py)
     pp = pd.read_csv(run / "pseudo_pressure_images.csv"); tests = pd.read_csv(run / "pseudo_pressure_tests.csv").set_index("measure")
     tt = pd.to_datetime(pp.capture_datetime, format="%Y:%m:%d %H:%M:%S")
@@ -109,21 +109,21 @@ def fig_dataset(out, run):
                        boxprops=dict(lw=0.6), whiskerprops=dict(lw=0.6), capprops=dict(lw=0.6))
             ax.scatter(i + rng.uniform(-0.14, 0.14, len(v)), v, s=6, color=c, alpha=0.85, lw=0, zorder=3)
         r = tests.loc[k]
-        ax.text(0.5, 1.0, f"g = {r.hedges_g:.2f}, p = {r.p_perm:.3f}".replace("-", "\u2212"), transform=ax.transAxes, ha="center", va="top", fontsize=5.2)
-        ax.set_xticks([0, 1]); ax.set_xticklabels(["left", "right"], fontsize=5.6); ax.tick_params(axis="y", labelsize=5.2)
-        ax.set_ylabel(ylab, fontsize=5.4); ax.spines[["top", "right"]].set_visible(False)
+        ax.text(0.5, 1.0, f"g = {r.hedges_g:.2f}, p = {r.p_perm:.3f}".replace("-", "\u2212"), transform=ax.transAxes, ha="center", va="top", fontsize=6)
+        ax.set_xticks([0, 1]); ax.set_xticklabels(["left", "right"], fontsize=6.4); ax.tick_params(axis="y", labelsize=6)
+        ax.set_ylabel(ylab, fontsize=6.2); ax.spines[["top", "right"]].set_visible(False)
         lo, hi = wm[k].min(), wm[k].max(); ax.set_ylim(lo - 0.05 * (hi - lo), hi + 0.22 * (hi - lo))
-        ax.set_title(title, fontsize=7, fontweight="bold", loc="left")
+        ax.set_title(title, fontsize=8, fontweight="bold", loc="left")
     ax = fig.add_subplot(gs[1, 3])
     for h, c in [("left", LEFT_C), ("right", RIGHT_C)]:
         g_ = wm[wm.hand == h]; ax.scatter(g_.hour, g_.darkness_at_ref_width, s=8, color=c, lw=0, label=f"{h}-handed")
     r = tests.loc["darkness_at_ref_width"]
-    ax.text(0.5, 1.0, f"Spearman \u03c1 = {r.rho_time:.2f}".replace("-", "\u2212"), transform=ax.transAxes, ha="center", va="top", fontsize=5.2)
-    ax.set_xlabel(f"time of photography (h), {tt.dt.strftime('%d %b').iloc[0]}", fontsize=5.6); ax.set_ylabel("relative darkness (equal width)", fontsize=5.4)
-    ax.tick_params(labelsize=5.2); ax.spines[["top", "right"]].set_visible(False)
+    ax.text(0.5, 1.0, f"Spearman \u03c1 = {r.rho_time:.2f}".replace("-", "\u2212"), transform=ax.transAxes, ha="center", va="top", fontsize=6)
+    ax.set_xlabel(f"time of photography (h), {tt.dt.strftime('%d %b').iloc[0]}", fontsize=6.4); ax.set_ylabel("relative darkness (equal width)", fontsize=6.2)
+    ax.tick_params(labelsize=6); ax.spines[["top", "right"]].set_visible(False)
     lo, hi = wm.darkness_at_ref_width.min(), wm.darkness_at_ref_width.max(); ax.set_ylim(lo - 0.05 * (hi - lo), hi + 0.22 * (hi - lo))
-    ax.legend(frameon=False, fontsize=4.8, loc="lower left", handletextpad=0.2, borderaxespad=0.1)
-    ax.set_title("(f) Darkness vs. time", fontsize=7, fontweight="bold", loc="left")
+    ax.legend(frameon=False, fontsize=5.5, loc="lower left", handletextpad=0.2, borderaxespad=0.1)
+    ax.set_title("(f) Darkness vs. time", fontsize=8, fontweight="bold", loc="left")
     save(fig, out, "fig1_dataset")
 
 
