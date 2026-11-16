@@ -43,7 +43,7 @@ TESTS = {"A": ("A", FITS["A"]), "B": ("B", [7, 8]), "C": ("A", [7, 8]),
          "ALL8": ("ALL8", FITS["ALL8"])}
 DEEP = ["resnet18", "efficientnet_b0", "vit_b_16"]
 MAIN_REPS = ["hc183"] + DEEP + ["style6"]
-STROKE_REPS = ["stroke", "stroke_cnn", "combined"]   # added for the 37-writer run (used when present in features.npz)
+STROKE_REPS = ["stroke", "stroke_cnn", "combined"]   # part of the declared protocol (used when present in features.npz)
 STROKE_BLOCKS = {"stroke_direction": slice(0, 16), "stroke_hinge": slice(16, 160), "stroke_turning": slice(160, 172),
                  "stroke_endings": slice(172, 184), "stroke_orient_slant": slice(184, 205), "stroke_rates": slice(205, 208)}
 CONTROLS = ["global_intensity", "background"]

@@ -1,7 +1,7 @@
 """Fast regression tests for the manifest-first final-study workflow.
 
 The fixtures describe synthetic people and prompts. They do not fill missing
-collection facts in the real 37-writer inventory or train on real photographs.
+collection facts in the real dataset inventory or train on real photographs.
 Run with /opt/anaconda3/bin/python3 -m pytest tests/test_final_study_pipeline.py.
 """
 

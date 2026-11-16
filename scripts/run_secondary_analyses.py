@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Secondary analyses of the 37-writer run (declared in protocol_declared_before_fitting.json).
+"""Secondary analyses of the final study (declared in protocol_declared_before_fitting.json).
 
 Writes: pitfalls.csv, adjusted.csv, controls_metrics_summary.csv, controls_contrasts_by_split.csv,
 controls_sensitivity.csv, single_measures.csv, mirror_test.csv (+ *_by_split.csv where useful).
