@@ -1,0 +1,46 @@
+{
+  "status": "Post hoc inference for the adjusted estimates (sensitivity analyses), not a preregistration.",
+  "seeds": [
+    2026,
+    2027,
+    2028,
+    2029,
+    2030,
+    2031,
+    2032,
+    2033,
+    2034,
+    2035,
+    2036,
+    2037,
+    2038,
+    2039,
+    2040,
+    2041,
+    2042,
+    2043,
+    2044,
+    2045
+  ],
+  "permutations": 999,
+  "permutation_seed": 2029,
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 7,
+  "family": "Holm correction over the six one-sided adjusted HC-183 tests (BanglaHand A: ink+photo, ink+photo+framing; CSAFE A and X: ink+scan, all layout+ink+scan); the LBP case is a separate two-sided diagnostic.",
+  "inputs_sha256": {
+    "dataset/metadata/images.csv": "fa864f733c687a5382701808b6b785b23820e18a9f6b5c8e3204060c0fef4361",
+    "results/final42_2026-10-19/features/features.npz": "af7aa785282a18672e4ea856bb3fae0558bbf26baeb82d067d91b009eb4d1890",
+    "results/final42_2026-10-19/features/descriptors.csv": "bc9d438c8e9d9a2b86ffcbbf646a878c00cec7b582fdeaf1d49d0f86e5016c0b",
+    "results/ijdar_dev_2026-11-12/features/layout.npz": "193782e5fa61abd398e1bbd8d16d9c1ec403976d69f71ff80652e664a2ada6ba",
+    "results/ijdar_dev_2026-11-12/features/baselines.npz": "ed3238c8dbe4a8d7b4dd61b35d076b1cf7213491e90e4f1b97c5e879b9d6c473",
+    "results/csafe_ijdar_2026-11-12/features/csafe_meta.csv": "fbe1cdcffe50ae8e28446949eacbeae1480e4b539aaeb5b54e31ba5c99d0b3ac",
+    "results/csafe_ijdar_2026-11-12/features/csafe_hand.npz": "8e48079ca35d8644425a89176230030527e715712b11b4916442acd485a90651"
+  },
+  "script_sha256": "f9259320912bd243e65efe44ecb0714e98ad3faa567d3909ebaeff7ead6028dd",
+  "environment": {
+    "python": "3.13.9",
+    "numpy": "2.3.5",
+    "pandas": "2.3.2",
+    "sklearn": "1.7.2"
+  }
+}
