@@ -114,57 +114,10 @@ def main():
         fig.text(x + w / 2, Y1 + 0.060, t, ha="center", va="top", fontsize=6.3, color=c, linespacing=1.15,
                  weight="normal" if c == GREY else "bold")
 
-    # (c) what is measured on the block
-    label(fig, 0.560, Y1 + H1 + 0.012, "c", "What is measured on the text block")
-    g = block.astype(np.float32); gx, gy = cv2.Sobel(g, cv2.CV_32F, 1, 0, ksize=3), cv2.Sobel(g, cv2.CV_32F, 0, 1, ksize=3)
-    mag = np.hypot(gx, gy); sel = mag > np.percentile(mag, 90)
-    polar(fig, [0.570, Y1 + 0.160, 0.095, 0.150], np.mod(np.arctan2(-gy[sel], gx[sel]), 2 * np.pi), mag[sel], 36, "#7c3aed",
-          "HC-183\ngradient\norientation")
-    ink = (stretch(g) < 0.55).astype(np.uint8)
-    cnts, _ = cv2.findContours(ink, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    ang = []
-    for c in cnts:
-        c = c[:, 0, :].astype(float)
-        if len(c) > 12:
-            d = np.roll(c, -4, 0) - c; ang.append(np.mod(np.arctan2(-d[:, 1], d[:, 0]), 2 * np.pi))
-    polar(fig, [0.685, Y1 + 0.160, 0.095, 0.150], np.concatenate(ang), None, 16, "#0f766e", "STROKE\ncontour\ndirection")
-    # MATRA-INK: a detected headstroke, its centreline and the cross-sections sampled along it
-    gf = cv2.imread(str(ROOT / "dataset" / rel), cv2.IMREAD_GRAYSCALE)
-    _, dbg = mf.features_from_gray(gf, return_debug=True); sw = float(dbg["w"])
-    H_, W_ = gf.shape
-    cands = [(b_ - a_, a_, b_, yc) for a_, b_, yc, _ in dbg["matras"] if 0.05 * H_ < yc.mean() < 0.95 * H_]
-    _, a_, b_, yc = max(cands, key=lambda t: t[0])
-    cw = int(min(b_ - a_, 16 * sw)); x0_ = a_ + (b_ - a_ - cw) // 2; yc0 = int(yc[x0_ - a_: x0_ - a_ + cw].mean())
-    ch_ = int(cw * 0.95); y0_ = max(0, yc0 - ch_ // 2)
-    ax = show(fig, [0.800, Y1 + 0.160, 0.085, 0.150], stretch(gf[y0_:y0_ + ch_, x0_:x0_ + cw].astype(np.float32)), edge="#be185d")
-    xx = np.arange(cw); yy = yc[x0_ - a_: x0_ - a_ + cw] - y0_
-    ax.plot(xx, yy, color="#be185d", lw=1.0)
-    half = 1.5 * sw / 2
-    for k in range(int(sw), cw - 1, max(2, int(1.6 * sw))):
-        ax.plot([k, k], [yy[k] - half, yy[k] + half], color="#f59e0b", lw=0.9)
-    ax.set_xlim(0, cw - 1); ax.set_ylim(ch_ - 1, 0)
-    ax.set_title("MATRA-INK", fontsize=7.2, pad=2.5, weight="bold")
-    ax.text(0.5, -0.07, "headstroke centreline\nand cross-sections", transform=ax.transAxes, ha="center", va="top",
-            fontsize=6.2, color=GREY, linespacing=1.1)
-    # CNN tiles
-    th = block.shape[0] // 3; tw = th
-    tiles = [block[i * th:(i + 1) * th, j * tw:(j + 1) * tw] for i in range(3) for j in range(3) if (j + 1) * tw <= block.shape[1]]
-    for k, t in enumerate(tiles[:9]):
-        i, j = divmod(k, 3)
-        show(fig, [0.905 + j * 0.0305, Y1 + 0.250 - i * 0.052, 0.028, 0.048], stretch(t), edge="#a5b4fc")
-    fig.text(0.951, Y1 + 0.307, "CNNs", ha="center", va="bottom", fontsize=7.2, weight="bold")
-    fig.text(0.951, Y1 + 0.135, "image tiles", ha="center", va="top", fontsize=6.2, color=GREY)
-    fig.text(0.770, Y1 + 0.065, "+ five earlier pipelines, re-implemented   + controls without handwriting", ha="center",
-             va="top", fontsize=6.3, color=GREY)
-    fig.text(0.770, Y1 + 0.037, "linear SVM · writer score = mean margin over the writer's pages", ha="center", va="top",
-             fontsize=6.3, color=GREY)
-
-    # flow arrow from the upper to the lower row
-
     # (d) writer-independent folds (real folds, first three seeds)
-    label(fig, 0.005, Y2 + H2 + 0.012, "d", "Writer-independent folds")
+    label(fig, 0.005, Y2 + H2 + 0.012, "d", "Writer-independent protocol: five-fold writer cross-validation, 20 seeds, whole-writer permutation test")
     D = rf.Data(BASE); order = np.argsort(-D.wlabels, kind="stable"); L = D.wlabels[order]; n = len(L); nl = int(L.sum())
-    ax = fig.add_axes([0.030, Y2 + 0.075, 0.205, H2 - 0.125])
+    ax = fig.add_axes([0.035, Y2 + 0.075, 0.42, H2 - 0.135])
     for s_i, seed in enumerate(rf.SEEDS[:3]):
         f = rf.writer_folds(D.writers, D.wlabels, seed)[order]
         for k in range(5):
@@ -176,46 +129,22 @@ def main():
         ax.text(-0.8, s_i * 6.4 + 2.4, f"seed {s_i + 1}", ha="right", va="center", fontsize=5.8, color=GREY, rotation=90)
     ax.text(nl / 2, -0.6, f"{nl} left", ha="center", va="bottom", fontsize=6.2, color=LEFT_C, weight="bold")
     ax.text(nl + (n - nl) / 2, -0.6, f"{n - nl} right", ha="center", va="bottom", fontsize=6.2, color=RIGHT_C, weight="bold")
-    fig.text(0.132, Y2 + 0.012, "rows: folds; dark: held-out test writers\n(5 folds × 20 seeds)",
+    fig.text(0.245, Y2 + 0.012, "rows: folds of the first three seeds; dark: held-out test writers",
              ha="center", va="bottom", fontsize=6.1, color=GREY, linespacing=1.15)
 
     # (e) permutation null of line-free HC-183
-    label(fig, 0.262, Y2 + H2 + 0.012, "e", "Permutation test")
     nul = pd.read_csv(DEV / "permutation_null_hc183_lf.csv").null_mean_ba.to_numpy() * 100   # scripts/save_linefree_null.py
     obs = float(m["vHcTbA"])
-    ax = fig.add_axes([0.275, Y2 + 0.085, 0.170, H2 - 0.135])
+    ax = fig.add_axes([0.56, Y2 + 0.095, 0.40, H2 - 0.16])
     ax.hist(nul, bins=np.arange(24, 88, 2), color="#cbd5e1", lw=0); ax.set_ylim(0, ax.get_ylim()[1] * 1.45)
     ax.axvline(obs, color=RED, lw=1.4); ax.axvline(50, color=GREY, lw=0.6, ls=":")
     ax.text(obs + 1.2, ax.get_ylim()[1] * 0.97, f"{m['vHcTbA']}%\np = {m['vHcTbP']}", color=RED, fontsize=6.2, va="top",
             ha="left", weight="bold")
     ax.set_xlabel("writer BA (%), line-free HC-183", labelpad=1); ax.set_yticks([]); ax.spines["left"].set_visible(False)
-    ax.text(0.01, 0.97, "999 permutations,\nfolds redrawn", transform=ax.transAxes, va="top", ha="left", fontsize=5.8, color=GREY)
-
-    # (f) leakage: paragraph BA, writer-level vs image-level split
-    label(fig, 0.470, Y2 + H2 + 0.012, "f", "Leakage via writer identity")
-    B = pd.read_csv(DEV / "baselines_pitfalls_adjusted.csv").set_index("rep")
-    R = pd.concat([pd.read_csv(DEV / f) for f in ("linefree_table_rows.csv", "linefree_table_rows_stroke.csv")]).drop_duplicates("rep", keep="last").set_index("rep")
-    rows = [("Edge-hinge", B.loc["edge_hinge", "para_ba_writer_split"], B.loc["edge_hinge", "para_ba_leaky"]),
-            ("Chain code", B.loc["chain_code", "para_ba_writer_split"], B.loc["chain_code", "para_ba_leaky"]),
-            ("Edge-direction", B.loc["edge_direction", "para_ba_writer_split"], B.loc["edge_direction", "para_ba_leaky"]),
-            ("ViT-B/16", R.loc["vit_b_16_lf", "para_ba_writer"], R.loc["vit_b_16_lf", "para_ba_leaky"]),
-            ("ResNet-18", R.loc["resnet18_lf", "para_ba_writer"], R.loc["resnet18_lf", "para_ba_leaky"]),
-            ("HOG + GLBP", B.loc["hog_glbp", "para_ba_writer_split"], B.loc["hog_glbp", "para_ba_leaky"]),
-            ("HC-183", R.loc["hc183_lf", "para_ba_writer"], R.loc["hc183_lf", "para_ba_leaky"]),
-            ("STROKE", R.loc["stroke_lf", "para_ba_writer"], R.loc["stroke_lf", "para_ba_leaky"])]
-    rows.sort(key=lambda r: r[2] - r[1])
-    ax = fig.add_axes([0.540, Y2 + 0.085, 0.135, H2 - 0.135])
-    for i, (nm, wv, lv) in enumerate(rows):
-        ax.plot([wv * 100, lv * 100], [i, i], color="#d1d5db", lw=2.4, solid_capstyle="round", zorder=1)
-        ax.scatter([wv * 100], [i], s=13, color=INK, zorder=2, lw=0); ax.scatter([lv * 100], [i], s=13, color=RED, zorder=2, lw=0)
-        ax.text(lv * 100 + 1.6, i, f"+{100 * (lv - wv):.0f}", va="center", fontsize=6, color=RED, weight="bold")
-    ax.set_yticks(range(len(rows))); ax.set_yticklabels([r[0] for r in rows]); ax.set_xlim(50, 106)
-    ax.set_xlabel("paragraph BA (%)", labelpad=1); ax.tick_params(axis="y", length=0)
-    ax.text(0.0, 1.0, "● writers split", transform=ax.transAxes, fontsize=6.1, color=INK, va="bottom")
-    ax.text(0.66, 1.0, "● images split", transform=ax.transAxes, fontsize=6.1, color=RED, va="bottom")
+    ax.text(0.01, 0.97, "null of line-free HC-183:\n999 relabellings, folds redrawn", transform=ax.transAxes, va="top", ha="left", fontsize=5.8, color=GREY)
 
     # (g) the audit: accuracy as each shortcut is removed, and the external cohort
-    label(fig, 0.735, Y2 + H2 + 0.012, "g", "Shortcut audit, HC-183")
+    label(fig, 0.585, Y1 + H1 + 0.012, "c", "Shortcut audit, HC-183")
     steps = [("Whole photograph", float(m["vHcA"]), INK),
              ("Printed lines removed", float(m["vHcNoLineA"]), "#374151"),
              ("Line-free text block", float(m["vHcTbA"]), "#4b5563"),
@@ -223,7 +152,7 @@ def main():
              ("Framing only, no writing", float(m["vFrameA"]), RED),
              ("CSAFE, unseen writers", float(m["vCsHcA"]), GREEN),
              ("CSAFE, weeks later", float(m["vCsHcX"]), GREEN)]
-    ax = fig.add_axes([0.830, Y2 + 0.085, 0.135, H2 - 0.135])
+    ax = fig.add_axes([0.80, Y1 + 0.075, 0.165, H1 - 0.105])
     yv = [0, 1, 2, 3, 4.5, 6.0, 7.0]
     for (nm, v, c), y in zip(steps, yv):
         ax.barh(y, v - 50, left=50, height=0.72, color=c, lw=0)

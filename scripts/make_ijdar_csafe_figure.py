@@ -50,9 +50,9 @@ def main():
     wl = meta.groupby("wid", sort=True).label.first()
     w_left, w_right = wl[wl == 1].index[0], wl[wl == 0].index[0]
 
-    fig = plt.figure(figsize=(7.16, 6.0))
-    ga = fig.add_gridspec(2, 1, left=0.01, right=0.315, top=0.965, bottom=0.535, hspace=0.30)
-    gb = fig.add_gridspec(1, 1, left=0.505, right=0.985, top=0.965, bottom=0.535)
+    fig = plt.figure(figsize=(7.16, 3.6))                     # main Fig. 8: panels a-c
+    ga = fig.add_gridspec(2, 1, left=0.01, right=0.235, top=0.93, bottom=0.07, hspace=0.30)
+    gb = fig.add_gridspec(1, 1, left=0.415, right=0.70, top=0.92, bottom=0.14)
     page(fig.add_subplot(ga[0, 0]), w_left, "(a) Left-handed writer, London Letter", LEFT_C)
     page(fig.add_subplot(ga[1, 0]), w_right, "Right-handed writer, same prompt", RIGHT_C)
 
@@ -72,14 +72,14 @@ def main():
     ax.set_yticks(ticks); ax.set_yticklabels(labels); ax.invert_yaxis(); ax.tick_params(axis="y", length=0)
     ax.set_xlim(40, 100); ax.set_xlabel("writer balanced accuracy (%), linear SVM")
     ax.legend(loc="lower right", frameon=False, handletextpad=0.3)
-    ax.set_title("(b) Every representation on unseen writers (dark: p < 0.05)", loc="right", fontsize=7.6, weight="bold")
+    ax.set_title("(b) All representations (dark: p < 0.05)", loc="right", fontsize=7.6, weight="bold")
     for t, r in zip(ax.get_yticklabels(), [r for _, rs in GROUPS for r in rs]):
         if r == "hc183_tb":
             t.set_weight("bold")
 
-    bot = fig.add_gridspec(1, 3, width_ratios=[1.05, 1.2, 1.0], left=0.065, right=0.985, top=0.415, bottom=0.075, wspace=0.55)
+    gc = fig.add_gridspec(1, 1, left=0.785, right=0.99, top=0.92, bottom=0.14)
     # (c) orientation check
-    ax = fig.add_subplot(bot[0, 0])
+    ax = fig.add_subplot(gc[0, 0])
     covs = [("none", "none", "#111827"), ("orientation", "orientation", "#6b7280"), ("all layout+ink+scan", "all layout\n+ ink + scan", "#d1d5db")]
     reps = [("hc183_tb", "HC-183"), ("stroke", "STROKE"), ("hog_glbp", "HOG+GLBP")]
     w = 0.26
@@ -89,10 +89,14 @@ def main():
     ax.axhline(50, color="k", lw=0.6, ls=":"); ax.set_ylim(45, 86)
     ax.set_xticks(range(3)); ax.set_xticklabels([n for _, n in reps]); ax.set_ylabel("writer BA (%), condition A")
     ax.legend(frameon=False, fontsize=5.9, loc="upper left", title="regressed out", title_fontsize=5.9, ncol=1)
-    ax.set_title("(c) Line orientation removed", **TITLE)
+    ax.set_title("(c) Orientation removed", **TITLE)
+    fig.savefig(OUT / "fig9_csafe.pdf"); fig.savefig(OUT / "fig9_csafe.png", dpi=200); print("wrote", OUT / "fig9_csafe.pdf")
 
-    # (d) layout measures
-    ax = fig.add_subplot(bot[0, 1])
+    fig = plt.figure(figsize=(7.16, 2.9))                     # Supplementary Fig. S4: layout and leakage
+    bot = fig.add_gridspec(1, 2, width_ratios=[1.25, 1.0], left=0.15, right=0.985, top=0.86, bottom=0.17, wspace=0.55)
+
+    # (a) layout measures
+    ax = fig.add_subplot(bot[0, 0])
     show = [("ruled_lines", "long straight lines"), ("block_cx", "block centre, x"), ("block_cy", "block centre, y"),
             ("block_w", "block width"), ("block_h", "block height"), ("ink_textblock", "ink density"),
             ("n_lines", "number of lines"), ("spacing_rel", "line spacing"), ("line_slope_mean", "line slope"), ("skew_deg", "text skew")]
@@ -104,10 +108,10 @@ def main():
     ax.axvline(0, color="k", lw=0.6); ax.set_yticks(range(len(show))); ax.set_yticklabels([n for _, n in show])
     ax.invert_yaxis(); ax.tick_params(axis="y", length=0); ax.set_xlim(-1.15, 1.0)
     ax.set_xlabel("Hedges g (left $-$ right)")
-    ax.set_title("(d) Page and layout: what differs", **TITLE)
+    ax.set_title("(a) Page and layout: what differs", **TITLE)
 
-    # (e) leakage
-    ax = fig.add_subplot(bot[0, 2])
+    # (b) leakage
+    ax = fig.add_subplot(bot[0, 1])
     lk = [r for r in ["vit_b_16", "efficientnet_b0", "stroke", "edge_hinge", "resnet18", "hc183_tb", "hog_glbp"]]
     lk.sort(key=lambda r: T.loc[r, "para_ba_leaky"] - T.loc[r, "para_ba_writer"])
     for i, r in enumerate(lk):
@@ -119,9 +123,10 @@ def main():
     ax.set_xlim(50, 102); ax.set_xlabel("page-level BA (%)")
     ax.text(0.0, 1.0, "● writers split", transform=ax.transAxes, fontsize=6.0, color=INK, va="bottom")
     ax.text(0.55, 1.0, "● pages split", transform=ax.transAxes, fontsize=6.0, color=RED, va="bottom")
-    ax.set_title("(e) Leakage", **TITLE, pad=15)
+    ax.set_title("(b) Leakage", **TITLE, pad=15)
 
-    fig.savefig(OUT / "fig9_csafe.pdf"); fig.savefig(OUT / "fig9_csafe.png", dpi=200); print("wrote", OUT / "fig9_csafe.pdf")
+    fig.savefig(OUT / "figS4_csafe_layout_leakage.pdf"); fig.savefig(OUT / "figS4_csafe_layout_leakage.png", dpi=200)
+    print("wrote", OUT / "figS4_csafe_layout_leakage.pdf")
 
 
 if __name__ == "__main__":
